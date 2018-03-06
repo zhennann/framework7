@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: February 19, 2018
+ * Released on: March 6, 2018
  */
 
 (function (global, factory) {
@@ -717,7 +717,7 @@ if (typeof window === 'undefined') {
 var win = w;
 
 /**
- * Dom7 2.0.2
+ * Dom7 2.0.3
  * Minimalistic JavaScript library for DOM manipulation, with a jQuery-compatible API
  * http://framework7.io/docs/dom.html
  *
@@ -727,7 +727,7 @@ var win = w;
  *
  * Licensed under MIT
  *
- * Released on: February 10, 2018
+ * Released on: February 21, 2018
  */
 var Dom7 = function Dom7(arr) {
   var self = this;
@@ -1968,8 +1968,8 @@ var Scroll = Object.freeze({
 function animate(initialProps, initialParams) {
   var els = this;
   var a = {
-    props: $$1$1.extend({}, initialProps),
-    params: $$1$1.extend({
+    props: Object.assign({}, initialProps),
+    params: Object.assign({
       duration: 300,
       easing: 'swing', // or 'linear'
       /* Callbacks
@@ -6274,6 +6274,11 @@ function navigate(navigateParams, navigateOptions) {
   function asyncResolve(resolveParams, resolveOptions) {
     router.allowPageChange = false;
     var resolvedAsModal = false;
+    if (resolveOptions && resolveOptions.context) {
+      if (!route.context) { route.context = resolveOptions.context; }
+      else { route.context = Utils.extend({}, route.context, resolveOptions.context); }
+      options.route.context = route.context;
+    }
     ('popup popover sheet loginScreen actions customModal').split(' ').forEach(function (modalLoadProp) {
       if (resolveParams[modalLoadProp]) {
         resolvedAsModal = true;
@@ -6493,6 +6498,7 @@ function modalLoad(modalType, route, loadOptions) {
 
   var router = this;
   var app = router.app;
+
   var options = Utils.extend({
     animate: router.params.animate,
     pushState: true,
@@ -6500,7 +6506,7 @@ function modalLoad(modalType, route, loadOptions) {
     on: {},
   }, loadOptions);
 
-  var modalParams = route.route[modalType];
+  var modalParams = Utils.extend({}, route.route[modalType]);
   var modalRoute = route.route;
 
   function onModalLoaded() {
@@ -7172,6 +7178,11 @@ function back() {
   // Async
   function asyncResolve(resolveParams, resolveOptions) {
     router.allowPageChange = false;
+    if (resolveOptions && resolveOptions.context) {
+      if (!route.context) { route.context = resolveOptions.context; }
+      else { route.context = Utils.extend({}, route.context, resolveOptions.context); }
+      options.route.context = route.context;
+    }
     router.loadBack(resolveParams, Utils.extend(options, resolveOptions), true);
   }
   function asyncReject() {
@@ -9919,7 +9930,7 @@ var Modal$1 = (function (Framework7Class$$1) {
     function transitionEnd() {
       if ($el.hasClass('modal-out')) {
         modal.onClosed();
-      } else {
+      } else if ($el.hasClass('modal-in')) {
         modal.onOpened();
       }
     }
@@ -9970,7 +9981,7 @@ var Modal$1 = (function (Framework7Class$$1) {
     function transitionEnd() {
       if ($el.hasClass('modal-out')) {
         modal.onClosed();
-      } else {
+      } else if ($el.hasClass('modal-in')) {
         modal.onOpened();
       }
     }
@@ -11180,10 +11191,12 @@ var Actions$1 = (function (Modal) {
         buttonIndex = $$1$1(buttonEl).index();
         groupIndex = $$1$1(buttonEl).parents('.actions-group').index();
       }
-      var button = groups[groupIndex][buttonIndex];
-      if (button.onClick) { button.onClick(actions, e); }
-      if (actions.params.onClick) { actions.params.onClick(actions, e); }
-      if (button.close !== false) { actions.close(); }
+      if (typeof groups !== 'undefined') {
+        var button = groups[groupIndex][buttonIndex];
+        if (button.onClick) { button.onClick(actions, e); }
+        if (actions.params.onClick) { actions.params.onClick(actions, e); }
+        if (button.close !== false) { actions.close(); }
+      }
     }
     actions.open = function open(animate) {
       var convertToPopover = false;
@@ -11231,14 +11244,16 @@ var Actions$1 = (function (Modal) {
       } else {
         actions.$el = actions.actionsHtml ? $$1$1(actions.actionsHtml) : actions.$el;
         actions.$el[0].f7Modal = actions;
-        actions.$el.find('.actions-button').each(function (groupIndex, buttonEl) {
-          $$1$1(buttonEl).on('click', buttonOnClick);
-        });
-        actions.once('actionsClosed', function () {
-          actions.$el.find('.list-button').each(function (groupIndex, buttonEl) {
-            $$1$1(buttonEl).off('click', buttonOnClick);
+        if (actions.groups) {
+          actions.$el.find('.actions-button').each(function (groupIndex, buttonEl) {
+            $$1$1(buttonEl).on('click', buttonOnClick);
           });
-        });
+          actions.once('actionsClosed', function () {
+            actions.$el.find('.actions-button').each(function (groupIndex, buttonEl) {
+              $$1$1(buttonEl).off('click', buttonOnClick);
+            });
+          });
+        }
         originalOpen.call(actions, animate);
       }
       return actions;
@@ -11273,17 +11288,19 @@ var Actions$1 = (function (Modal) {
           actions.backdropEl === target
         ) {
           actions.close();
+        } else if (actions.params.closeByOutsideClick) {
+          actions.close();
         }
       }
     }
 
     actions.on('opened', function () {
-      if (actions.params.closeByBackdropClick) {
+      if (actions.params.closeByBackdropClick || actions.params.closeByOutsideClick) {
         app.on('click', handleClick);
       }
     });
     actions.on('close', function () {
-      if (actions.params.closeByBackdropClick) {
+      if (actions.params.closeByBackdropClick || actions.params.closeByOutsideClick) {
         app.off('click', handleClick);
       }
     });
@@ -11312,7 +11329,7 @@ var Actions$1 = (function (Modal) {
               var text = button.text;
               var icon = button.icon;
               if (color) { buttonClasses.push(("color-" + color)); }
-              if (bg) { buttonClasses.push(("bg-" + color)); }
+              if (bg) { buttonClasses.push(("bg-color-" + bg)); }
               if (bold) { buttonClasses.push('actions-button-bold'); }
               if (disabled) { buttonClasses.push('disabled'); }
               if (label) {
@@ -11335,7 +11352,7 @@ var Actions$1 = (function (Modal) {
                   var text = button.text;
                   var icon = button.icon;
                   if (color) { itemClasses.push(("color-" + color)); }
-                  if (bg) { itemClasses.push(("bg-" + bg)); }
+                  if (bg) { itemClasses.push(("bg-color-" + bg)); }
                   if (bold) { itemClasses.push('popover-from-actions-bold'); }
                   if (disabled) { itemClasses.push('disabled'); }
                   if (label) {
@@ -13489,7 +13506,13 @@ var Tab = {
       if ($oldTabEl && $oldTabEl.length > 0) {
         // Search by id
         var oldTabId = $oldTabEl.attr('id');
-        if (oldTabId) { $oldTabLinkEl = $$1$1((".tab-link[href=\"#" + oldTabId + "\"]")); }
+        if (oldTabId) {
+          $oldTabLinkEl = $$1$1((".tab-link[href=\"#" + oldTabId + "\"]"));
+          // Search by data-route-tab-id
+          if (!$oldTabLinkEl || ($oldTabLinkEl && $oldTabLinkEl.length === 0)) {
+            $oldTabLinkEl = $$1$1((".tab-link[data-route-tab-id=\"" + oldTabId + "\"]"));
+          }
+        }
         // Search by data-tab
         if (!$oldTabLinkEl || ($oldTabLinkEl && $oldTabLinkEl.length === 0)) {
           $$1$1('[data-tab]').each(function (index, tabLinkElement) {
@@ -14560,8 +14583,15 @@ function initAjaxForm() {
     if (!url) { return; }
 
     var data;
-    if (method === 'POST') { data = new window.FormData($formEl[0]); }
-    else { data = Utils.serializeObject(app.form.convertToData($formEl[0])); }
+    if (method === 'POST') {
+      if (contentType === 'application/x-www-form-urlencoded') {
+        data = app.form.convertToData($formEl[0]);
+      } else {
+        data = new window.FormData($formEl[0]);
+      }
+    } else {
+      data = Utils.serializeObject(app.form.convertToData($formEl[0]));
+    }
 
     var xhr = app.request({
       method: method,
@@ -16693,6 +16723,7 @@ var Calendar$1 = (function (Framework7Class$$1) {
     var nextMonthHtml = calendar.renderMonth(currentDate, 'next');
 
     $wrapperEl
+      .transition(0)
       .html(("" + prevMonthHtml + currentMonthHtml + nextMonthHtml))
       .transform('translate3d(0,0,0)');
     calendar.$months = $wrapperEl.find('.calendar-month');
@@ -28669,7 +28700,7 @@ var Vi = {
           app.emit('viSdkReady');
           app.vi.skdReady = true;
         };
-        script.src = 'http://c.vi-serve.com/viadshtml/vi.min.js';
+        script.src = 'https://c.vi-serve.com/viadshtml/vi.min.js';
         $$1$1('head').append(script);
       },
     };

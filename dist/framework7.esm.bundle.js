@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: February 19, 2018
+ * Released on: March 6, 2018
  */
 
 import Template7 from 'template7';
@@ -3465,6 +3465,11 @@ function navigate(navigateParams, navigateOptions = {}) {
   function asyncResolve(resolveParams, resolveOptions) {
     router.allowPageChange = false;
     let resolvedAsModal = false;
+    if (resolveOptions && resolveOptions.context) {
+      if (!route.context) route.context = resolveOptions.context;
+      else route.context = Utils.extend({}, route.context, resolveOptions.context);
+      options.route.context = route.context;
+    }
     ('popup popover sheet loginScreen actions customModal').split(' ').forEach((modalLoadProp) => {
       if (resolveParams[modalLoadProp]) {
         resolvedAsModal = true;
@@ -3669,6 +3674,7 @@ function tabRemove($oldTabEl, $newTabEl, tabRoute) {
 function modalLoad(modalType, route, loadOptions = {}) {
   const router = this;
   const app = router.app;
+
   const options = Utils.extend({
     animate: router.params.animate,
     pushState: true,
@@ -3676,7 +3682,7 @@ function modalLoad(modalType, route, loadOptions = {}) {
     on: {},
   }, loadOptions);
 
-  const modalParams = route.route[modalType];
+  const modalParams = Utils.extend({}, route.route[modalType]);
   const modalRoute = route.route;
 
   function onModalLoaded() {
@@ -4329,6 +4335,11 @@ function back(...args) {
   // Async
   function asyncResolve(resolveParams, resolveOptions) {
     router.allowPageChange = false;
+    if (resolveOptions && resolveOptions.context) {
+      if (!route.context) route.context = resolveOptions.context;
+      else route.context = Utils.extend({}, route.context, resolveOptions.context);
+      options.route.context = route.context;
+    }
     router.loadBack(resolveParams, Utils.extend(options, resolveOptions), true);
   }
   function asyncReject() {
@@ -7020,7 +7031,7 @@ class Modal$1 extends Framework7Class {
     function transitionEnd() {
       if ($el.hasClass('modal-out')) {
         modal.onClosed();
-      } else {
+      } else if ($el.hasClass('modal-in')) {
         modal.onOpened();
       }
     }
@@ -7071,7 +7082,7 @@ class Modal$1 extends Framework7Class {
     function transitionEnd() {
       if ($el.hasClass('modal-out')) {
         modal.onClosed();
-      } else {
+      } else if ($el.hasClass('modal-in')) {
         modal.onOpened();
       }
     }
@@ -8200,10 +8211,12 @@ class Actions$1 extends Modal$1 {
         buttonIndex = $(buttonEl).index();
         groupIndex = $(buttonEl).parents('.actions-group').index();
       }
-      const button = groups[groupIndex][buttonIndex];
-      if (button.onClick) button.onClick(actions, e);
-      if (actions.params.onClick) actions.params.onClick(actions, e);
-      if (button.close !== false) actions.close();
+      if (typeof groups !== 'undefined') {
+        const button = groups[groupIndex][buttonIndex];
+        if (button.onClick) button.onClick(actions, e);
+        if (actions.params.onClick) actions.params.onClick(actions, e);
+        if (button.close !== false) actions.close();
+      }
     }
     actions.open = function open(animate) {
       let convertToPopover = false;
@@ -8246,14 +8259,16 @@ class Actions$1 extends Modal$1 {
       } else {
         actions.$el = actions.actionsHtml ? $(actions.actionsHtml) : actions.$el;
         actions.$el[0].f7Modal = actions;
-        actions.$el.find('.actions-button').each((groupIndex, buttonEl) => {
-          $(buttonEl).on('click', buttonOnClick);
-        });
-        actions.once('actionsClosed', () => {
-          actions.$el.find('.list-button').each((groupIndex, buttonEl) => {
-            $(buttonEl).off('click', buttonOnClick);
+        if (actions.groups) {
+          actions.$el.find('.actions-button').each((groupIndex, buttonEl) => {
+            $(buttonEl).on('click', buttonOnClick);
           });
-        });
+          actions.once('actionsClosed', () => {
+            actions.$el.find('.actions-button').each((groupIndex, buttonEl) => {
+              $(buttonEl).off('click', buttonOnClick);
+            });
+          });
+        }
         originalOpen.call(actions, animate);
       }
       return actions;
@@ -8288,17 +8303,19 @@ class Actions$1 extends Modal$1 {
           actions.backdropEl === target
         ) {
           actions.close();
+        } else if (actions.params.closeByOutsideClick) {
+          actions.close();
         }
       }
     }
 
     actions.on('opened', () => {
-      if (actions.params.closeByBackdropClick) {
+      if (actions.params.closeByBackdropClick || actions.params.closeByOutsideClick) {
         app.on('click', handleClick);
       }
     });
     actions.on('close', () => {
-      if (actions.params.closeByBackdropClick) {
+      if (actions.params.closeByBackdropClick || actions.params.closeByOutsideClick) {
         app.off('click', handleClick);
       }
     });
@@ -8321,7 +8338,7 @@ class Actions$1 extends Modal$1 {
               const buttonClasses = [`actions-${button.label ? 'label' : 'button'}`];
               const { color, bg, bold, disabled, label, text, icon } = button;
               if (color) buttonClasses.push(`color-${color}`);
-              if (bg) buttonClasses.push(`bg-${color}`);
+              if (bg) buttonClasses.push(`bg-color-${bg}`);
               if (bold) buttonClasses.push('actions-button-bold');
               if (disabled) buttonClasses.push('disabled');
               if (label) {
@@ -8351,7 +8368,7 @@ class Actions$1 extends Modal$1 {
                   const itemClasses = [];
                   const { color, bg, bold, disabled, label, text, icon } = button;
                   if (color) itemClasses.push(`color-${color}`);
-                  if (bg) itemClasses.push(`bg-${bg}`);
+                  if (bg) itemClasses.push(`bg-color-${bg}`);
                   if (bold) itemClasses.push('popover-from-actions-bold');
                   if (disabled) itemClasses.push('disabled');
                   if (label) {
@@ -10468,7 +10485,13 @@ const Tab = {
       if ($oldTabEl && $oldTabEl.length > 0) {
         // Search by id
         const oldTabId = $oldTabEl.attr('id');
-        if (oldTabId) $oldTabLinkEl = $(`.tab-link[href="#${oldTabId}"]`);
+        if (oldTabId) {
+          $oldTabLinkEl = $(`.tab-link[href="#${oldTabId}"]`);
+          // Search by data-route-tab-id
+          if (!$oldTabLinkEl || ($oldTabLinkEl && $oldTabLinkEl.length === 0)) {
+            $oldTabLinkEl = $(`.tab-link[data-route-tab-id="${oldTabId}"]`);
+          }
+        }
         // Search by data-tab
         if (!$oldTabLinkEl || ($oldTabLinkEl && $oldTabLinkEl.length === 0)) {
           $('[data-tab]').each((index, tabLinkElement) => {
@@ -11506,8 +11529,15 @@ function initAjaxForm() {
     if (!url) return;
 
     let data;
-    if (method === 'POST') data = new window.FormData($formEl[0]);
-    else data = Utils.serializeObject(app.form.convertToData($formEl[0]));
+    if (method === 'POST') {
+      if (contentType === 'application/x-www-form-urlencoded') {
+        data = app.form.convertToData($formEl[0]);
+      } else {
+        data = new window.FormData($formEl[0]);
+      }
+    } else {
+      data = Utils.serializeObject(app.form.convertToData($formEl[0]));
+    }
 
     const xhr = app.request({
       method,
@@ -13694,6 +13724,7 @@ class Calendar$1 extends Framework7Class {
     const nextMonthHtml = calendar.renderMonth(currentDate, 'next');
 
     $wrapperEl
+      .transition(0)
       .html(`${prevMonthHtml}${currentMonthHtml}${nextMonthHtml}`)
       .transform('translate3d(0,0,0)');
     calendar.$months = $wrapperEl.find('.calendar-month');
@@ -25583,7 +25614,7 @@ var Vi = {
           app.emit('viSdkReady');
           app.vi.skdReady = true;
         };
-        script.src = 'http://c.vi-serve.com/viadshtml/vi.min.js';
+        script.src = 'https://c.vi-serve.com/viadshtml/vi.min.js';
         $('head').append(script);
       },
     };
