@@ -70,10 +70,14 @@ class Dialog extends Modal {
       return dialog.destroy();
     }
 
-    let $backdropEl = app.root.children('.dialog-backdrop');
-    if ($backdropEl.length === 0) {
-      $backdropEl = $('<div class="dialog-backdrop"></div>');
-      app.root.append($backdropEl);
+    // Backdrop
+    let $backdropEl;
+    if (dialog.params.backdrop) {
+      $backdropEl = app.root.children('.dialog-backdrop');
+      if ($backdropEl.length === 0) {
+        $backdropEl = $('<div class="dialog-backdrop"></div>');
+        app.root.append($backdropEl);
+      }
     }
 
     // Assign events
