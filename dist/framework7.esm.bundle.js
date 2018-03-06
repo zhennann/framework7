@@ -7007,6 +7007,11 @@ class Modal$1 extends Framework7Class {
           $el.remove();
         }
       });
+    } else if (!app.params.modal.moveToRoot && !wasInDom && modal.hostEl) {
+      modal.hostEl.append($el);
+      modal.once(`${type}Closed`, () => {
+        $el.remove();
+      });
     }
     // Show Modal
     $el.show();
@@ -13304,6 +13309,12 @@ class Calendar$1 extends Framework7Class {
     const calendar = this;
     calendar.params = Utils.extend({}, app.params.calendar, params);
 
+    let $hostEl;
+    if (calendar.params.hostEl) {
+      $hostEl = $(calendar.params.hostEl);
+      if ($hostEl.length === 0) return calendar;
+    }
+
     let $containerEl;
     if (calendar.params.containerEl) {
       $containerEl = $(calendar.params.containerEl);
@@ -13330,6 +13341,8 @@ class Calendar$1 extends Framework7Class {
 
     Utils.extend(calendar, {
       app,
+      $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $containerEl,
       containerEl: $containerEl && $containerEl[0],
       inline: $containerEl && $containerEl.length > 0,
@@ -14508,7 +14521,7 @@ class Calendar$1 extends Framework7Class {
   }
   open() {
     const calendar = this;
-    const { app, opened, inline, $inputEl, params } = calendar;
+    const { app, opened, inline, $hostEl, $inputEl, params } = calendar;
     if (opened) return;
 
     if (inline) {
@@ -14528,6 +14541,7 @@ class Calendar$1 extends Framework7Class {
     const modalContent = calendar.render();
 
     const modalParams = {
+      hostEl: $hostEl,
       targetEl: $inputEl,
       scrollToEl: calendar.params.scrollToInput ? $inputEl : undefined,
       content: modalContent,

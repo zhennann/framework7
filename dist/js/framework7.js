@@ -9906,6 +9906,11 @@ var Modal$1 = (function (Framework7Class$$1) {
           $el.remove();
         }
       });
+    } else if (!app.params.modal.moveToRoot && !wasInDom && modal.hostEl) {
+      modal.hostEl.append($el);
+      modal.once((type + "Closed"), function () {
+        $el.remove();
+      });
     }
     // Show Modal
     $el.show();
@@ -16287,6 +16292,12 @@ var Calendar$1 = (function (Framework7Class$$1) {
     var calendar = this;
     calendar.params = Utils.extend({}, app.params.calendar, params);
 
+    var $hostEl;
+    if (calendar.params.hostEl) {
+      $hostEl = $$1$1(calendar.params.hostEl);
+      if ($hostEl.length === 0) { return calendar; }
+    }
+
     var $containerEl;
     if (calendar.params.containerEl) {
       $containerEl = $$1$1(calendar.params.containerEl);
@@ -16313,6 +16324,8 @@ var Calendar$1 = (function (Framework7Class$$1) {
 
     Utils.extend(calendar, {
       app: app,
+      $hostEl: $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $containerEl: $containerEl,
       containerEl: $containerEl && $containerEl[0],
       inline: $containerEl && $containerEl.length > 0,
@@ -17472,6 +17485,7 @@ var Calendar$1 = (function (Framework7Class$$1) {
     var app = calendar.app;
     var opened = calendar.opened;
     var inline = calendar.inline;
+    var $hostEl = calendar.$hostEl;
     var $inputEl = calendar.$inputEl;
     var params = calendar.params;
     if (opened) { return; }
@@ -17493,6 +17507,7 @@ var Calendar$1 = (function (Framework7Class$$1) {
     var modalContent = calendar.render();
 
     var modalParams = {
+      hostEl: $hostEl,
       targetEl: $inputEl,
       scrollToEl: calendar.params.scrollToInput ? $inputEl : undefined,
       content: modalContent,

@@ -97,6 +97,11 @@ class Modal extends Framework7Class {
           $el.remove();
         }
       });
+    } else if (!app.params.modal.moveToRoot && !wasInDom && modal.hostEl) {
+      modal.hostEl.append($el);
+      modal.once(`${type}Closed`, () => {
+        $el.remove();
+      });
     }
     // Show Modal
     $el.show();
