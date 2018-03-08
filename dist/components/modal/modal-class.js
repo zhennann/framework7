@@ -97,11 +97,22 @@ class Modal extends Framework7Class {
           $el.remove();
         }
       });
-    } else if (!app.params.modal.moveToRoot && !wasInDom && modal.hostEl) {
-      modal.hostEl.append($el);
-      modal.once(`${type}Closed`, () => {
-        $el.remove();
-      });
+    } else if (!app.params.modal.moveToRoot) {
+      let $hostEl = modal.params.hostEl;
+      if (!$hostEl && wasInDom) {
+        $hostEl = $el.parents('.views');
+        if ($hostEl.length === 0) $hostEl = $el.parent('.view');
+      }
+      if ($hostEl.length > 0) {
+        $hostEl.append($el);
+        modal.once(`${type}Closed`, () => {
+          if (wasInDom) {
+            $modalParentEl.append($el);
+          } else {
+            $el.remove();
+          }
+        });
+      }
     }
     // Show Modal
     $el.show();

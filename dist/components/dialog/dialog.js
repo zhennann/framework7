@@ -33,11 +33,19 @@ export default {
       {
         // Shortcuts
         alert(...args) {
-          let [text, title, callbackOk] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk] = args;
           if (args.length === 2 && typeof args[1] === 'function') {
             [text, callbackOk, title] = args;
           }
           return new Dialog(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             buttons: [{

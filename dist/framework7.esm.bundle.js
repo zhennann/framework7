@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 6, 2018
+ * Released on: March 8, 2018
  */
 
 import Template7 from 'template7';
@@ -7007,11 +7007,22 @@ class Modal$1 extends Framework7Class {
           $el.remove();
         }
       });
-    } else if (!app.params.modal.moveToRoot && !wasInDom && modal.hostEl) {
-      modal.hostEl.append($el);
-      modal.once(`${type}Closed`, () => {
-        $el.remove();
-      });
+    } else if (!app.params.modal.moveToRoot) {
+      let $hostEl = modal.params.hostEl;
+      if (!$hostEl && wasInDom) {
+        $hostEl = $el.parents('.views');
+        if ($hostEl.length === 0) $hostEl = $el.parent('.view');
+      }
+      if ($hostEl.length > 0) {
+        $hostEl.append($el);
+        modal.once(`${type}Closed`, () => {
+          if (wasInDom) {
+            $modalParentEl.append($el);
+          } else {
+            $el.remove();
+          }
+        });
+      }
     }
     // Show Modal
     $el.show();
@@ -7244,6 +7255,7 @@ class Dialog$1 extends Modal$1 {
     }, params);
     if (typeof extendedParams.closeByBackdropClick === 'undefined') {
       extendedParams.closeByBackdropClick = app.params.dialog.closeByBackdropClick;
+      extendedParams.backdrop = app.params.dialog.backdrop;
     }
 
     // Extends with open/close Modal methods;
@@ -7254,6 +7266,13 @@ class Dialog$1 extends Modal$1 {
     const { title, text, content, buttons, verticalButtons, cssClass } = extendedParams;
 
     dialog.params = extendedParams;
+
+    // Host El
+    let $hostEl;
+    if (dialog.params.hostEl) {
+      $hostEl = $(dialog.params.hostEl);
+      if ($hostEl.length === 0) return dialog;
+    }
 
     // Find Element
     let $el;
@@ -7298,10 +7317,14 @@ class Dialog$1 extends Modal$1 {
       return dialog.destroy();
     }
 
-    let $backdropEl = app.root.children('.dialog-backdrop');
-    if ($backdropEl.length === 0) {
-      $backdropEl = $('<div class="dialog-backdrop"></div>');
-      app.root.append($backdropEl);
+    // Backdrop
+    let $backdropEl;
+    if (dialog.params.backdrop) {
+      $backdropEl = app.root.children('.dialog-backdrop');
+      if ($backdropEl.length === 0) {
+        $backdropEl = $('<div class="dialog-backdrop"></div>');
+        app.root.append($backdropEl);
+      }
     }
 
     // Assign events
@@ -7327,10 +7350,12 @@ class Dialog$1 extends Modal$1 {
     }
     Utils.extend(dialog, {
       app,
+      $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $el,
       el: $el[0],
       $backdropEl,
-      backdropEl: $backdropEl[0],
+      backdropEl: $backdropEl && $backdropEl[0],
       type: 'dialog',
       setProgress(progress, duration) {
         app.progressbar.set($el.find('.progressbar'), progress, duration);
@@ -7497,11 +7522,19 @@ var Dialog = {
       {
         // Shortcuts
         alert(...args) {
-          let [text, title, callbackOk] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk] = args;
           if (args.length === 2 && typeof args[1] === 'function') {
             [text, callbackOk, title] = args;
           }
           return new Dialog$1(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             buttons: [{
@@ -14545,7 +14578,7 @@ class Calendar$1 extends Framework7Class {
       targetEl: $inputEl,
       scrollToEl: calendar.params.scrollToInput ? $inputEl : undefined,
       content: modalContent,
-      backdrop: modalType !== 'sheet',
+      backdrop: modalType === 'popover' && app.params.popover.backdrop !== false,
       on: {
         open() {
           const modal = this;

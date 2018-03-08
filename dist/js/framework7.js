@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 6, 2018
+ * Released on: March 8, 2018
  */
 
 (function (global, factory) {
@@ -9906,11 +9906,22 @@ var Modal$1 = (function (Framework7Class$$1) {
           $el.remove();
         }
       });
-    } else if (!app.params.modal.moveToRoot && !wasInDom && modal.hostEl) {
-      modal.hostEl.append($el);
-      modal.once((type + "Closed"), function () {
-        $el.remove();
-      });
+    } else if (!app.params.modal.moveToRoot) {
+      var $hostEl = modal.params.hostEl;
+      if (!$hostEl && wasInDom) {
+        $hostEl = $el.parents('.views');
+        if ($hostEl.length === 0) { $hostEl = $el.parent('.view'); }
+      }
+      if ($hostEl.length > 0) {
+        $hostEl.append($el);
+        modal.once((type + "Closed"), function () {
+          if (wasInDom) {
+            $modalParentEl.append($el);
+          } else {
+            $el.remove();
+          }
+        });
+      }
     }
     // Show Modal
     $el.show();
@@ -10151,6 +10162,7 @@ var Dialog$1 = (function (Modal) {
     }, params);
     if (typeof extendedParams.closeByBackdropClick === 'undefined') {
       extendedParams.closeByBackdropClick = app.params.dialog.closeByBackdropClick;
+      extendedParams.backdrop = app.params.dialog.backdrop;
     }
 
     // Extends with open/close Modal methods;
@@ -10166,6 +10178,13 @@ var Dialog$1 = (function (Modal) {
     var cssClass = extendedParams.cssClass;
 
     dialog.params = extendedParams;
+
+    // Host El
+    var $hostEl;
+    if (dialog.params.hostEl) {
+      $hostEl = $$1$1(dialog.params.hostEl);
+      if ($hostEl.length === 0) { return dialog; }
+    }
 
     // Find Element
     var $el;
@@ -10195,10 +10214,14 @@ var Dialog$1 = (function (Modal) {
       return dialog.destroy();
     }
 
-    var $backdropEl = app.root.children('.dialog-backdrop');
-    if ($backdropEl.length === 0) {
-      $backdropEl = $$1$1('<div class="dialog-backdrop"></div>');
-      app.root.append($backdropEl);
+    // Backdrop
+    var $backdropEl;
+    if (dialog.params.backdrop) {
+      $backdropEl = app.root.children('.dialog-backdrop');
+      if ($backdropEl.length === 0) {
+        $backdropEl = $$1$1('<div class="dialog-backdrop"></div>');
+        app.root.append($backdropEl);
+      }
     }
 
     // Assign events
@@ -10224,10 +10247,12 @@ var Dialog$1 = (function (Modal) {
     }
     Utils.extend(dialog, {
       app: app,
+      $hostEl: $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $el: $el,
       el: $el[0],
       $backdropEl: $backdropEl,
-      backdropEl: $backdropEl[0],
+      backdropEl: $backdropEl && $backdropEl[0],
       type: 'dialog',
       setProgress: function setProgress(progress, duration) {
         app.progressbar.set($el.find('.progressbar'), progress, duration);
@@ -10415,17 +10440,23 @@ var Dialog = {
       {
         // Shortcuts
         alert: function alert() {
-          var assign;
+          var assign, assign$1;
 
           var args = [], len = arguments.length;
           while ( len-- ) args[ len ] = arguments[ len ];
-          var text = args[0];
-          var title = args[1];
-          var callbackOk = args[2];
+          var hostEl;
+          var text;
+          var title;
+          var callbackOk;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2]);
           if (args.length === 2 && typeof args[1] === 'function') {
-            (assign = args, text = assign[0], callbackOk = assign[1], title = assign[2]);
+            (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], title = assign$1[2]);
           }
           return new Dialog$1(app, {
+            hostEl: hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text: text,
             buttons: [{
@@ -17511,7 +17542,7 @@ var Calendar$1 = (function (Framework7Class$$1) {
       targetEl: $inputEl,
       scrollToEl: calendar.params.scrollToInput ? $inputEl : undefined,
       content: modalContent,
-      backdrop: modalType !== 'sheet',
+      backdrop: modalType === 'popover' && app.params.popover.backdrop !== false,
       on: {
         open: function open() {
           var modal = this;
