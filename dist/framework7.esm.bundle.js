@@ -7009,11 +7009,15 @@ class Modal$1 extends Framework7Class {
       });
     } else if (!app.params.modal.moveToRoot) {
       let $hostEl = modal.params.hostEl;
-      if (!$hostEl && wasInDom) {
-        $hostEl = $el.parents('.views');
-        if ($hostEl.length === 0) $hostEl = $el.parent('.view');
+      if (!$hostEl) {
+        if (wasInDom) {
+          $hostEl = $el.parents('.views');
+          if ($hostEl.length === 0) $hostEl = $el.parent('.view');
+        } else {
+          $hostEl = app.root;
+        }
       }
-      if ($hostEl.length > 0) {
+      if ($hostEl && $hostEl.length > 0) {
         $hostEl.append($el);
         modal.once(`${type}Closed`, () => {
           if (wasInDom) {
@@ -7546,11 +7550,20 @@ var Dialog = {
           }).open();
         },
         prompt(...args) {
-          let [text, title, callbackOk, callbackCancel] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          let callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk, callbackCancel] = args;
           if (typeof args[1] === 'function') {
             [text, callbackOk, callbackCancel, title] = args;
           }
           return new Dialog$1(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             content: '<div class="dialog-input-field item-input"><div class="item-input-wrap"><input type="text" class="dialog-input"></div></div>',
@@ -7572,11 +7585,20 @@ var Dialog = {
           }).open();
         },
         confirm(...args) {
-          let [text, title, callbackOk, callbackCancel] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          let callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk, callbackCancel] = args;
           if (typeof args[1] === 'function') {
             [text, callbackOk, callbackCancel, title] = args;
           }
           return new Dialog$1(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             buttons: [
@@ -7594,11 +7616,20 @@ var Dialog = {
           }).open();
         },
         login(...args) {
-          let [text, title, callbackOk, callbackCancel] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          let callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk, callbackCancel] = args;
           if (typeof args[1] === 'function') {
             [text, callbackOk, callbackCancel, title] = args;
           }
           return new Dialog$1(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             content: `
@@ -7631,11 +7662,20 @@ var Dialog = {
           }).open();
         },
         password(...args) {
-          let [text, title, callbackOk, callbackCancel] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          let callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk, callbackCancel] = args;
           if (typeof args[1] === 'function') {
             [text, callbackOk, callbackCancel, title] = args;
           }
           return new Dialog$1(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             content: `
@@ -7661,9 +7701,15 @@ var Dialog = {
             destroyOnClose,
           }).open();
         },
-        preloader(title) {
+        preloader(...args) {
+          let hostEl;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          const [title] = args;
           const preloaderInner = app.theme !== 'md' ? '' : Utils.mdPreloaderContent;
           return new Dialog$1(app, {
+            hostEl,
             title: typeof title === 'undefined' ? app.params.dialog.preloaderTitle : title,
             content: `<div class="preloader">${preloaderInner}</div>`,
             cssClass: 'dialog-preloader',
@@ -7671,7 +7717,14 @@ var Dialog = {
           }).open();
         },
         progress(...args) {
-          let [title, progress, color] = args;
+          let hostEl;
+          let title;
+          let progress;
+          let color;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [title, progress, color] = args;
           if (args.length === 2) {
             if (typeof args[0] === 'number') {
               [progress, color, title] = args;
@@ -7685,6 +7738,7 @@ var Dialog = {
           }
           const infinite = typeof progress === 'undefined';
           const dialog = new Dialog$1(app, {
+            hostEl,
             title: typeof title === 'undefined' ? app.params.dialog.progressTitle : title,
             cssClass: 'dialog-progress',
             content: `
@@ -8722,6 +8776,14 @@ class Toast$1 extends Modal$1 {
       window.clearTimeout(timeoutId);
     });
 
+    if (toast.params.destroyOnClose) {
+      toast.once('closed', () => {
+        setTimeout(() => {
+          toast.destroy();
+        }, 0);
+      });
+    }
+
     return toast;
   }
   render() {
@@ -8756,7 +8818,16 @@ var Toast = {
         app,
         constructor: Toast$1,
         defaultSelector: '.toast.modal-in',
-      })
+      }),
+      {
+        // Shortcuts
+        show(params) {
+          Utils.extend(params, {
+            destroyOnClose: true,
+          });
+          return new Toast$1(app, params).open();
+        },
+      }
     );
   },
   params: {

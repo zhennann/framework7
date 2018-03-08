@@ -9908,11 +9908,15 @@ var Modal$1 = (function (Framework7Class$$1) {
       });
     } else if (!app.params.modal.moveToRoot) {
       var $hostEl = modal.params.hostEl;
-      if (!$hostEl && wasInDom) {
-        $hostEl = $el.parents('.views');
-        if ($hostEl.length === 0) { $hostEl = $el.parent('.view'); }
+      if (!$hostEl) {
+        if (wasInDom) {
+          $hostEl = $el.parents('.views');
+          if ($hostEl.length === 0) { $hostEl = $el.parent('.view'); }
+        } else {
+          $hostEl = app.root;
+        }
       }
-      if ($hostEl.length > 0) {
+      if ($hostEl && $hostEl.length > 0) {
         $hostEl.append($el);
         modal.once((type + "Closed"), function () {
           if (wasInDom) {
@@ -10468,18 +10472,24 @@ var Dialog = {
           }).open();
         },
         prompt: function prompt() {
-          var assign;
+          var assign, assign$1;
 
           var args = [], len = arguments.length;
           while ( len-- ) args[ len ] = arguments[ len ];
-          var text = args[0];
-          var title = args[1];
-          var callbackOk = args[2];
-          var callbackCancel = args[3];
+          var hostEl;
+          var text;
+          var title;
+          var callbackOk;
+          var callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
           if (typeof args[1] === 'function') {
-            (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+            (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
           }
           return new Dialog$1(app, {
+            hostEl: hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text: text,
             content: '<div class="dialog-input-field item-input"><div class="item-input-wrap"><input type="text" class="dialog-input"></div></div>',
@@ -10500,18 +10510,24 @@ var Dialog = {
           }).open();
         },
         confirm: function confirm() {
-          var assign;
+          var assign, assign$1;
 
           var args = [], len = arguments.length;
           while ( len-- ) args[ len ] = arguments[ len ];
-          var text = args[0];
-          var title = args[1];
-          var callbackOk = args[2];
-          var callbackCancel = args[3];
+          var hostEl;
+          var text;
+          var title;
+          var callbackOk;
+          var callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
           if (typeof args[1] === 'function') {
-            (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+            (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
           }
           return new Dialog$1(app, {
+            hostEl: hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text: text,
             buttons: [
@@ -10528,18 +10544,24 @@ var Dialog = {
           }).open();
         },
         login: function login() {
-          var assign;
+          var assign, assign$1;
 
           var args = [], len = arguments.length;
           while ( len-- ) args[ len ] = arguments[ len ];
-          var text = args[0];
-          var title = args[1];
-          var callbackOk = args[2];
-          var callbackCancel = args[3];
+          var hostEl;
+          var text;
+          var title;
+          var callbackOk;
+          var callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
           if (typeof args[1] === 'function') {
-            (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+            (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
           }
           return new Dialog$1(app, {
+            hostEl: hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text: text,
             content: ("\n              <div class=\"dialog-input-field dialog-input-double item-input\">\n                <div class=\"item-input-wrap\">\n                  <input type=\"text\" name=\"dialog-username\" placeholder=\"" + (app.params.dialog.usernamePlaceholder) + "\" class=\"dialog-input\">\n                </div>\n              </div>\n              <div class=\"dialog-input-field dialog-input-double item-input\">\n                <div class=\"item-input-wrap\">\n                  <input type=\"password\" name=\"dialog-password\" placeholder=\"" + (app.params.dialog.passwordPlaceholder) + "\" class=\"dialog-input\">\n                </div>\n              </div>"),
@@ -10561,18 +10583,24 @@ var Dialog = {
           }).open();
         },
         password: function password() {
-          var assign;
+          var assign, assign$1;
 
           var args = [], len = arguments.length;
           while ( len-- ) args[ len ] = arguments[ len ];
-          var text = args[0];
-          var title = args[1];
-          var callbackOk = args[2];
-          var callbackCancel = args[3];
+          var hostEl;
+          var text;
+          var title;
+          var callbackOk;
+          var callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
           if (typeof args[1] === 'function') {
-            (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+            (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
           }
           return new Dialog$1(app, {
+            hostEl: hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text: text,
             content: ("\n              <div class=\"dialog-input-field item-input\">\n                <div class=\"item-input-wrap\">\n                  <input type=\"password\" name=\"dialog-password\" placeholder=\"" + (app.params.dialog.passwordPlaceholder) + "\" class=\"dialog-input\">\n                </div>\n              </div>"),
@@ -10592,9 +10620,18 @@ var Dialog = {
             destroyOnClose: destroyOnClose,
           }).open();
         },
-        preloader: function preloader(title) {
+        preloader: function preloader() {
+          var args = [], len = arguments.length;
+          while ( len-- ) args[ len ] = arguments[ len ];
+
+          var hostEl;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          var title = args[0];
           var preloaderInner = app.theme !== 'md' ? '' : Utils.mdPreloaderContent;
           return new Dialog$1(app, {
+            hostEl: hostEl,
             title: typeof title === 'undefined' ? app.params.dialog.preloaderTitle : title,
             content: ("<div class=\"preloader\">" + preloaderInner + "</div>"),
             cssClass: 'dialog-preloader',
@@ -10602,26 +10639,32 @@ var Dialog = {
           }).open();
         },
         progress: function progress() {
-          var assign, assign$1, assign$2;
+          var assign, assign$1, assign$2, assign$3;
 
           var args = [], len = arguments.length;
           while ( len-- ) args[ len ] = arguments[ len ];
-          var title = args[0];
-          var progress = args[1];
-          var color = args[2];
+          var hostEl;
+          var title;
+          var progress;
+          var color;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          (assign = args, title = assign[0], progress = assign[1], color = assign[2]);
           if (args.length === 2) {
             if (typeof args[0] === 'number') {
-              (assign = args, progress = assign[0], color = assign[1], title = assign[2]);
+              (assign$1 = args, progress = assign$1[0], color = assign$1[1], title = assign$1[2]);
             } else if (typeof args[0] === 'string' && typeof args[1] === 'string') {
-              (assign$1 = args, title = assign$1[0], color = assign$1[1], progress = assign$1[2]);
+              (assign$2 = args, title = assign$2[0], color = assign$2[1], progress = assign$2[2]);
             }
           } else if (args.length === 1) {
             if (typeof args[0] === 'number') {
-              (assign$2 = args, progress = assign$2[0], title = assign$2[1], color = assign$2[2]);
+              (assign$3 = args, progress = assign$3[0], title = assign$3[1], color = assign$3[2]);
             }
           }
           var infinite = typeof progress === 'undefined';
           var dialog = new Dialog$1(app, {
+            hostEl: hostEl,
             title: typeof title === 'undefined' ? app.params.dialog.progressTitle : title,
             cssClass: 'dialog-progress',
             content: ("\n              <div class=\"progressbar" + (infinite ? '-infinite' : '') + (color ? (" color-" + color) : '') + "\">\n                " + (!infinite ? '<span></span>' : '') + "\n              </div>\n            "),
@@ -11699,6 +11742,14 @@ var Toast$1 = (function (Modal) {
       window.clearTimeout(timeoutId);
     });
 
+    if (toast.params.destroyOnClose) {
+      toast.once('closed', function () {
+        setTimeout(function () {
+          toast.destroy();
+        }, 0);
+      });
+    }
+
     return toast;
   }
 
@@ -11736,7 +11787,16 @@ var Toast = {
         app: app,
         constructor: Toast$1,
         defaultSelector: '.toast.modal-in',
-      })
+      }),
+      {
+        // Shortcuts
+        show: function show(params) {
+          Utils.extend(params, {
+            destroyOnClose: true,
+          });
+          return new Toast$1(app, params).open();
+        },
+      }
     );
   },
   params: {

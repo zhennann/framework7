@@ -99,11 +99,15 @@ class Modal extends Framework7Class {
       });
     } else if (!app.params.modal.moveToRoot) {
       let $hostEl = modal.params.hostEl;
-      if (!$hostEl && wasInDom) {
-        $hostEl = $el.parents('.views');
-        if ($hostEl.length === 0) $hostEl = $el.parent('.view');
+      if (!$hostEl) {
+        if (wasInDom) {
+          $hostEl = $el.parents('.views');
+          if ($hostEl.length === 0) $hostEl = $el.parent('.view');
+        } else {
+          $hostEl = app.root;
+        }
       }
-      if ($hostEl.length > 0) {
+      if ($hostEl && $hostEl.length > 0) {
         $hostEl.append($el);
         modal.once(`${type}Closed`, () => {
           if (wasInDom) {
