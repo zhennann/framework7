@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 8, 2018
+ * Released on: March 11, 2018
  */
 
 import Template7 from 'template7';
@@ -6969,7 +6969,7 @@ class Modal$1 extends Framework7Class {
     const modal = this;
     const app = modal.app;
     const $el = modal.$el;
-    const $backdropEl = modal.$backdropEl;
+    let $backdropEl = modal.$backdropEl;
     const type = modal.type;
     let animate = true;
     if (typeof animateModal !== 'undefined') animate = animateModal;
@@ -6998,17 +6998,11 @@ class Modal$1 extends Framework7Class {
 
     const $modalParentEl = $el.parent();
     const wasInDom = $el.parents(document).length > 0;
-    if (app.params.modal.moveToRoot && !$modalParentEl.is(app.root)) {
-      app.root.append($el);
-      modal.once(`${type}Closed`, () => {
-        if (wasInDom) {
-          $modalParentEl.append($el);
-        } else {
-          $el.remove();
-        }
-      });
-    } else if (!app.params.modal.moveToRoot) {
-      let $hostEl = modal.params.hostEl;
+    let $hostEl;
+    if (app.params.modal.moveToRoot) {
+      $hostEl = app.root;
+    } else {
+      $hostEl = modal.params.hostEl;
       if (!$hostEl) {
         if (wasInDom) {
           $hostEl = $el.parents('.views');
@@ -7017,17 +7011,29 @@ class Modal$1 extends Framework7Class {
           $hostEl = app.root;
         }
       }
-      if ($hostEl && $hostEl.length > 0) {
-        $hostEl.append($el);
-        modal.once(`${type}Closed`, () => {
-          if (wasInDom) {
-            $modalParentEl.append($el);
-          } else {
-            $el.remove();
-          }
-        });
-      }
     }
+    if ($hostEl && !$modalParentEl.is($hostEl)) {
+      $hostEl.append($el);
+      modal.once(`${type}Closed`, () => {
+        if (wasInDom) {
+          $modalParentEl.append($el);
+        } else {
+          $el.remove();
+        }
+      });
+    }
+
+    // Backdrop
+    if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
+      const className = $backdropEl.prop('className');
+      let backdropEl = $hostEl.children(`.${className}`);
+      if (backdropEl.length === 0) {
+        backdropEl = $(`<div class="${className}"></div>`);
+        $hostEl.append(backdropEl);
+      }
+      $backdropEl = modal.$backdropEl = backdropEl;
+    }
+
     // Show Modal
     $el.show();
 
@@ -8677,7 +8683,7 @@ var Sheet = {
   },
   create() {
     const app = this;
-    if (!app.passedParams.sheet || !app.passedParams.sheet.backdrop) {
+    if (!app.passedParams.sheet || app.passedParams.sheet.backdrop === undefined) {
       app.params.sheet.backdrop = app.theme === 'md';
     }
     app.sheet = Utils.extend(

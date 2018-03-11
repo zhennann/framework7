@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 8, 2018
+ * Released on: March 11, 2018
  */
 
 (function (global, factory) {
@@ -9897,17 +9897,11 @@ var Modal$1 = (function (Framework7Class$$1) {
 
     var $modalParentEl = $el.parent();
     var wasInDom = $el.parents(document).length > 0;
-    if (app.params.modal.moveToRoot && !$modalParentEl.is(app.root)) {
-      app.root.append($el);
-      modal.once((type + "Closed"), function () {
-        if (wasInDom) {
-          $modalParentEl.append($el);
-        } else {
-          $el.remove();
-        }
-      });
-    } else if (!app.params.modal.moveToRoot) {
-      var $hostEl = modal.params.hostEl;
+    var $hostEl;
+    if (app.params.modal.moveToRoot) {
+      $hostEl = app.root;
+    } else {
+      $hostEl = modal.params.hostEl;
       if (!$hostEl) {
         if (wasInDom) {
           $hostEl = $el.parents('.views');
@@ -9916,17 +9910,29 @@ var Modal$1 = (function (Framework7Class$$1) {
           $hostEl = app.root;
         }
       }
-      if ($hostEl && $hostEl.length > 0) {
-        $hostEl.append($el);
-        modal.once((type + "Closed"), function () {
-          if (wasInDom) {
-            $modalParentEl.append($el);
-          } else {
-            $el.remove();
-          }
-        });
-      }
     }
+    if ($hostEl && !$modalParentEl.is($hostEl)) {
+      $hostEl.append($el);
+      modal.once((type + "Closed"), function () {
+        if (wasInDom) {
+          $modalParentEl.append($el);
+        } else {
+          $el.remove();
+        }
+      });
+    }
+
+    // Backdrop
+    if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
+      var className = $backdropEl.prop('className');
+      var backdropEl = $hostEl.children(("." + className));
+      if (backdropEl.length === 0) {
+        backdropEl = $$1$1(("<div class=\"" + className + "\"></div>"));
+        $hostEl.append(backdropEl);
+      }
+      $backdropEl = modal.$backdropEl = backdropEl;
+    }
+
     // Show Modal
     $el.show();
 
@@ -11637,7 +11643,7 @@ var Sheet = {
   },
   create: function create() {
     var app = this;
-    if (!app.passedParams.sheet || !app.passedParams.sheet.backdrop) {
+    if (!app.passedParams.sheet || app.passedParams.sheet.backdrop === undefined) {
       app.params.sheet.backdrop = app.theme === 'md';
     }
     app.sheet = Utils.extend(

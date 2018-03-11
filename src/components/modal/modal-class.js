@@ -96,8 +96,9 @@ class Modal extends Framework7Class {
       if (!$hostEl) {
         if (wasInDom) {
           $hostEl = $el.parents('.views');
-          if ($hostEl.length === 0) $hostEl = $el.parent('.view');
-        } else {
+          if ($hostEl.length === 0) $hostEl = $el.parents('.view');
+        }
+        if (!$hostEl || $hostEl.length === 0) {
           $hostEl = app.root;
         }
       }
