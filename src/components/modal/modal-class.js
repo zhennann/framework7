@@ -123,6 +123,7 @@ class Modal extends Framework7Class {
         $hostEl.append(backdropEl);
       }
       $backdropEl = modal.$backdropEl = backdropEl;
+      modal.backdropEl = backdropEl[0];
     }
 
     // Show Modal
