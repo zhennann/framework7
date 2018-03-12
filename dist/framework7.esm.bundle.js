@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 11, 2018
+ * Released on: March 12, 2018
  */
 
 import Template7 from 'template7';
@@ -7006,8 +7006,9 @@ class Modal$1 extends Framework7Class {
       if (!$hostEl) {
         if (wasInDom) {
           $hostEl = $el.parents('.views');
-          if ($hostEl.length === 0) $hostEl = $el.parent('.view');
-        } else {
+          if ($hostEl.length === 0) $hostEl = $el.parents('.view');
+        }
+        if (!$hostEl || $hostEl.length === 0) {
           $hostEl = app.root;
         }
       }
@@ -7032,6 +7033,7 @@ class Modal$1 extends Framework7Class {
         $hostEl.append(backdropEl);
       }
       $backdropEl = modal.$backdropEl = backdropEl;
+      modal.backdropEl = backdropEl[0];
     }
 
     // Show Modal

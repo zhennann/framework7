@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 11, 2018
+ * Released on: March 12, 2018
  */
 
 (function (global, factory) {
@@ -9905,8 +9905,9 @@ var Modal$1 = (function (Framework7Class$$1) {
       if (!$hostEl) {
         if (wasInDom) {
           $hostEl = $el.parents('.views');
-          if ($hostEl.length === 0) { $hostEl = $el.parent('.view'); }
-        } else {
+          if ($hostEl.length === 0) { $hostEl = $el.parents('.view'); }
+        }
+        if (!$hostEl || $hostEl.length === 0) {
           $hostEl = app.root;
         }
       }
@@ -9931,6 +9932,7 @@ var Modal$1 = (function (Framework7Class$$1) {
         $hostEl.append(backdropEl);
       }
       $backdropEl = modal.$backdropEl = backdropEl;
+      modal.backdropEl = backdropEl[0];
     }
 
     // Show Modal
