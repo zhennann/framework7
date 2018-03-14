@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 12, 2018
+ * Released on: March 14, 2018
  */
 html {
   direction: rtl;
@@ -2708,10 +2708,10 @@ button {
   border-width: 2px;
   line-height: 25px;
 }
-.md .button i.icon + span,
-.md .button span:not(.ripple-wave, .preloader-inner-gap, .preloader-inner-left, .preloader-inner-right) + span,
-.md .button span:not(.ripple-wave) + i.icon,
-.md .button i.icon + i.icon {
+.md .button > i.icon + span,
+.md .button > span:not(.ripple-wave) + span,
+.md .button > span:not(.ripple-wave) + i.icon,
+.md .button > i.icon + i.icon {
   margin-right: 8px;
 }
 .md .button.button-raised {
