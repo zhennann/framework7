@@ -1,5 +1,5 @@
 /**
- * Framework7 2.0.10
+ * Framework7 2.0.12
  * Full featured mobile HTML framework for building iOS & Android apps
  * http://framework7.io/
  *
@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 14, 2018
+ * Released on: March 25, 2018
  */
 
 import Template7 from 'template7';
@@ -5784,7 +5784,7 @@ function initClicks(app) {
         view = $(clickedLinkData.view)[0].f7View;
       } else {
         view = clicked.parents('.view')[0] && clicked.parents('.view')[0].f7View;
-        if (view && view.params.linksView) {
+        if (!clickedLink.hasClass('back') && view && view.params.linksView) {
           if (typeof view.params.linksView === 'string') view = $(view.params.linksView)[0].f7View;
           else if (view.params.linksView instanceof View) view = view.params.linksView;
         }
