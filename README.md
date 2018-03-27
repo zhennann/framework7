@@ -3,15 +3,14 @@
 [![Build Status](https://travis-ci.org/framework7io/framework7.svg?branch=master)](https://travis-ci.org/framework7io/framework7)
 [![devDependency Status](https://david-dm.org/framework7io/framework7/dev-status.svg)](https://david-dm.org/framework7io/framework7#info=devDependencies)
 
-Framework7
-==========
+# Framework7
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/framework7io/Framework7.svg)](https://greenkeeper.io/)
 
 Full Featured Mobile HTML Framework For Building iOS & Android Apps
 
 ## Getting Started
-  * [Getting Started Guide](http://www.idangero.us/framework7/get-started/)
+  * [Getting Started Guide](https://framework7.io/docs/introduction.html)
   * Clone/download this repo
   * Start building your App from changing Kitchen Sink, or using a clean template.
 
