@@ -35,11 +35,19 @@ export default {
       {
         // Shortcuts
         alert(...args) {
-          let [text, title, callbackOk] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk] = args;
           if (args.length === 2 && typeof args[1] === 'function') {
             [text, callbackOk, title] = args;
           }
           return new Dialog(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             buttons: [{
@@ -52,11 +60,20 @@ export default {
           }).open();
         },
         prompt(...args) {
-          let [text, title, callbackOk, callbackCancel] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          let callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk, callbackCancel] = args;
           if (typeof args[1] === 'function') {
             [text, callbackOk, callbackCancel, title] = args;
           }
           return new Dialog(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             content: '<div class="dialog-input-field item-input"><div class="item-input-wrap"><input type="text" class="dialog-input"></div></div>',
@@ -80,11 +97,20 @@ export default {
           }).open();
         },
         confirm(...args) {
-          let [text, title, callbackOk, callbackCancel] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          let callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk, callbackCancel] = args;
           if (typeof args[1] === 'function') {
             [text, callbackOk, callbackCancel, title] = args;
           }
           return new Dialog(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             buttons: [
@@ -104,11 +130,20 @@ export default {
           }).open();
         },
         login(...args) {
-          let [text, title, callbackOk, callbackCancel] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          let callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk, callbackCancel] = args;
           if (typeof args[1] === 'function') {
             [text, callbackOk, callbackCancel, title] = args;
           }
           return new Dialog(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             content: `
@@ -143,11 +178,20 @@ export default {
           }).open();
         },
         password(...args) {
-          let [text, title, callbackOk, callbackCancel] = args;
+          let hostEl;
+          let text;
+          let title;
+          let callbackOk;
+          let callbackCancel;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [text, title, callbackOk, callbackCancel] = args;
           if (typeof args[1] === 'function') {
             [text, callbackOk, callbackCancel, title] = args;
           }
           return new Dialog(app, {
+            hostEl,
             title: typeof title === 'undefined' ? defaultDialogTitle : title,
             text,
             content: `
@@ -175,9 +219,15 @@ export default {
             destroyOnClose,
           }).open();
         },
-        preloader(title, color) {
+        preloader(...args) {
+          let hostEl;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          const [title, color] = args;
           const preloaderInner = app.theme !== 'md' ? '' : Utils.mdPreloaderContent;
           return new Dialog(app, {
+            hostEl,
             title: typeof title === 'undefined' || title === null ? app.params.dialog.preloaderTitle : title,
             content: `<div class="preloader${color ? ` color-${color}` : ''}">${preloaderInner}</div>`,
             cssClass: 'dialog-preloader',
@@ -185,7 +235,14 @@ export default {
           }).open();
         },
         progress(...args) {
-          let [title, progress, color] = args;
+          let hostEl;
+          let title;
+          let progress;
+          let color;
+          if (args[0] && args[0].resize) {
+            hostEl = args.shift();
+          }
+          [title, progress, color] = args;
           if (args.length === 2) {
             if (typeof args[0] === 'number') {
               [progress, color, title] = args;
@@ -199,6 +256,7 @@ export default {
           }
           const infinite = typeof progress === 'undefined';
           const dialog = new Dialog(app, {
+            hostEl,
             title: typeof title === 'undefined' ? app.params.dialog.progressTitle : title,
             cssClass: 'dialog-progress',
             content: `

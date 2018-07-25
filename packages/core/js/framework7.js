@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: July 20, 2018
+ * Released on: July 25, 2018
  */
 
 (function (global, factory) {
@@ -4876,12 +4876,37 @@
   pathToRegexp_1.tokensToRegExp = tokensToRegExp_1;
 
   var tempDom = doc.createElement('div');
+  var counter = 0;
+
+  function renderEsTemplate(template, context, id) {
+    var callbackName = "f7_component_callback_es_template" + (id || new Date().getTime());
+    if (id && win[callbackName]) {
+      return win[callbackName].call(context);
+    }
+    var scriptContent = "\n    window." + callbackName + " = function () {\n      return `" + template + "`;\n    }\n  ";
+    // Insert Script El
+    var scriptEl = doc.createElement('script');
+    scriptEl.innerHTML = scriptContent;
+    $$1('head').append(scriptEl);
+
+    // Render template
+    var rendered = win[callbackName].call(context);
+
+    // Remove Script El
+    $$1(scriptEl).remove();
+
+    return rendered;
+  }
 
   var Framework7Component = function Framework7Component(opts, extendContext) {
     if ( extendContext === void 0 ) extendContext = {};
 
     var options = Utils.extend({}, opts);
     var component = Utils.merge(this, extendContext, { $options: options });
+    if (!options.id) {
+      options.id = "" + (Utils.now()) + counter;
+      counter += 1;
+    }
 
     // Apply context
     ('beforeCreate created beforeMount mounted beforeDestroy destroyed').split(' ').forEach(function (cycleKey) {
@@ -4942,10 +4967,15 @@
         html = options.render();
       } else if (options.template) {
         if (typeof options.template === 'string') {
-          try {
-            html = Template7.compile(options.template)(component);
-          } catch (err) {
-            throw err;
+          if (options.templateType === 't7' || !options.templateType) {
+            try {
+              html = Template7.compile(options.template)(component);
+            } catch (err) {
+              throw err;
+            }
+          }
+          if (options.templateType === 'es') {
+            html = renderEsTemplate(options.template, component, options.id);
           }
         } else {
           // Supposed to be function
@@ -4975,6 +5005,13 @@
 
     // Find Events
     var events = [];
+    ('click focus blur change input submit scroll focusin focusout keyup keydown keypress mouseenter mouseleave').split(' ').forEach(function (event) {
+      $$1(tempDom).find(("[on" + event + "]")).each(function (index, element) {
+        if (element[("on" + event)]) {
+          element[("on" + event)] = element[("on" + event)].bind(component);
+        }
+      });
+    });
     $$1(tempDom).find('*').each(function (index, element) {
       var attrs = [];
       for (var i = 0; i < element.attributes.length; i += 1) {
@@ -5048,15 +5085,16 @@
             }
             if (methodName.indexOf('.') >= 0) {
               methodName.split('.').forEach(function (path, pathIndex) {
+                if (path === 'this') { return; }
                 if (!method) { method = component; }
                 if (method[path]) { method = method[path]; }
                 else {
-                  throw new Error(("Component doesn't have method \"" + (methodName.split('.').slice(0, pathIndex + 1).join('.')) + "\""));
+                  throw new Error(("Framework7: Component doesn't have method \"" + (methodName.split('.').slice(0, pathIndex + 1).join('.')) + "\""));
                 }
               });
             } else {
               if (!component[methodName]) {
-                throw new Error(("Component doesn't have method \"" + methodName + "\""));
+                throw new Error(("Framework7: Component doesn't have method \"" + methodName + "\""));
               }
               method = component[methodName];
             }
@@ -5152,9 +5190,11 @@
 
       // Template
       var template;
-      if (componentString.indexOf('<template>') >= 0) {
+      var hasTemplate = componentString.match(/<template([ ]?)([a-z0-9-]*)>/);
+      var templateType = hasTemplate[2] || 't7';
+      if (hasTemplate) {
         template = componentString
-          .split('<template>')
+          .split(/<template[ ]?[a-z0-9-]*>/)
           .filter(function (item, index) { return index > 0; })
           .join('<template>')
           .split('</template>')
@@ -5168,7 +5208,8 @@
 
       // Styles
       var style;
-      var styleScopeId = Utils.now();
+      var id = "" + (Utils.now()) + counter;
+      counter += 1;
       if (componentString.indexOf('<style>') >= 0) {
         style = componentString.split('<style>')[1].split('</style>')[0];
       } else if (componentString.indexOf('<style scoped>') >= 0) {
@@ -5176,9 +5217,9 @@
         style = style.split('\n').map(function (line) {
           if (line.indexOf('{') >= 0) {
             if (line.indexOf('{{this}}') >= 0) {
-              return line.replace('{{this}}', ("[data-scope=\"" + styleScopeId + "\"]"));
+              return line.replace('{{this}}', ("[data-scope=\"" + id + "\"]"));
             }
-            return ("[data-scope=\"" + styleScopeId + "\"] " + (line.trim()));
+            return ("[data-scope=\"" + id + "\"] " + (line.trim()));
           }
           return line;
         }).join('\n');
@@ -5205,11 +5246,14 @@
 
       if (!component.template && !component.render) {
         component.template = template;
+        component.templateType = templateType;
       }
       if (style) {
         component.style = style;
-        component.styleScopeId = styleScopeId;
+        component.styleScopeId = id;
       }
+
+      component.id = id;
       return component;
     },
     create: function create(c, extendContext) {
@@ -6601,19 +6645,16 @@
         }
       }
     }
-    if (!router.params.unloadTabContent) {
-      if ($newTabEl[0].f7RouterTabLoaded) {
-        if ($oldTabEl && $oldTabEl.length) {
-          if (animated) {
-            onTabsChanged(function () {
-              router.emit('routeChanged', router.currentRoute, router.previousRoute, router);
-            });
-          } else {
-            router.emit('routeChanged', router.currentRoute, router.previousRoute, router);
-          }
-        }
-        return router;
+    if (!router.params.unloadTabContent && $newTabEl[0].f7RouterTabLoaded) {
+      if (!$oldTabEl || !$oldTabEl.length) { return router; }
+      if (animated) {
+        onTabsChanged(function () {
+          router.emit('routeChanged', router.currentRoute, router.previousRoute, router);
+        });
+      } else {
+        router.emit('routeChanged', router.currentRoute, router.previousRoute, router);
       }
+      return router;
     }
 
     // Load Tab Content
@@ -10324,8 +10365,23 @@
 
       var $modalParentEl = $el.parent();
       var wasInDom = $el.parents(doc).length > 0;
-      if (app.params.modal.moveToRoot && !$modalParentEl.is(app.root)) {
-        app.root.append($el);
+      var $hostEl;
+      if (app.params.modal.moveToRoot) {
+        $hostEl = app.root;
+      } else {
+        $hostEl = modal.params.hostEl;
+        if (!$hostEl) {
+          if (wasInDom) {
+            $hostEl = $el.parents('.views');
+            if ($hostEl.length === 0) { $hostEl = $el.parents('.view'); }
+          }
+          if (!$hostEl || $hostEl.length === 0) {
+            $hostEl = app.root;
+          }
+        }
+      }
+      if ($hostEl && !$modalParentEl.is($hostEl)) {
+        $hostEl.append($el);
         modal.once((type + "Closed"), function () {
           if (wasInDom) {
             $modalParentEl.append($el);
@@ -10334,6 +10390,20 @@
           }
         });
       }
+
+      // Backdrop
+      if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
+        var className = $backdropEl.prop('className');
+        var backdropEl = $hostEl.children(("." + className));
+        if (backdropEl.length === 0) {
+          backdropEl = $$1(("<div class=\"" + className + "\"></div>"));
+          $hostEl.append(backdropEl);
+        }
+        $backdropEl = backdropEl;
+        modal.$backdropEl = backdropEl;
+        modal.backdropEl = backdropEl[0];
+      }
+
       // Show Modal
       $el.show();
 
@@ -10576,6 +10646,7 @@
       }, params);
       if (typeof extendedParams.closeByBackdropClick === 'undefined') {
         extendedParams.closeByBackdropClick = app.params.dialog.closeByBackdropClick;
+        extendedParams.backdrop = app.params.dialog.backdrop;
       }
 
       // Extends with open/close Modal methods;
@@ -10591,6 +10662,13 @@
       var cssClass = extendedParams.cssClass;
 
       dialog.params = extendedParams;
+
+      // Host El
+      var $hostEl;
+      if (dialog.params.hostEl) {
+        $hostEl = $$1(dialog.params.hostEl);
+        if ($hostEl.length === 0) { return dialog; }
+      }
 
       // Find Element
       var $el;
@@ -10620,10 +10698,14 @@
         return dialog.destroy();
       }
 
-      var $backdropEl = app.root.children('.dialog-backdrop');
-      if ($backdropEl.length === 0) {
-        $backdropEl = $$1('<div class="dialog-backdrop"></div>');
-        app.root.append($backdropEl);
+      // Backdrop
+      var $backdropEl;
+      if (dialog.params.backdrop) {
+        $backdropEl = app.root.children('.dialog-backdrop');
+        if ($backdropEl.length === 0) {
+          $backdropEl = $$1('<div class="dialog-backdrop"></div>');
+          app.root.append($backdropEl);
+        }
       }
 
       // Assign events
@@ -10680,10 +10762,12 @@
       }
       Utils.extend(dialog, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $el: $el,
         el: $el[0],
         $backdropEl: $backdropEl,
-        backdropEl: $backdropEl[0],
+        backdropEl: $backdropEl && $backdropEl[0],
         type: 'dialog',
         setProgress: function setProgress(progress, duration) {
           app.progressbar.set($el.find('.progressbar'), progress, duration);
@@ -10873,17 +10957,23 @@
         {
           // Shortcuts
           alert: function alert() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2]);
             if (args.length === 2 && typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], title = assign[2]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], title = assign$1[2]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle : title,
               text: text,
               buttons: [{
@@ -10896,18 +10986,24 @@
             }).open();
           },
           prompt: function prompt() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
             if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle : title,
               text: text,
               content: '<div class="dialog-input-field item-input"><div class="item-input-wrap"><input type="text" class="dialog-input"></div></div>',
@@ -10930,18 +11026,24 @@
             }).open();
           },
           confirm: function confirm() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
             if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle : title,
               text: text,
               buttons: [
@@ -10960,18 +11062,24 @@
             }).open();
           },
           login: function login() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
             if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle : title,
               text: text,
               content: ("\n              <div class=\"dialog-input-field dialog-input-double item-input\">\n                <div class=\"item-input-wrap\">\n                  <input type=\"text\" name=\"dialog-username\" placeholder=\"" + (app.params.dialog.usernamePlaceholder) + "\" class=\"dialog-input\">\n                </div>\n              </div>\n              <div class=\"dialog-input-field dialog-input-double item-input\">\n                <div class=\"item-input-wrap\">\n                  <input type=\"password\" name=\"dialog-password\" placeholder=\"" + (app.params.dialog.passwordPlaceholder) + "\" class=\"dialog-input\">\n                </div>\n              </div>"),
@@ -10995,18 +11103,24 @@
             }).open();
           },
           password: function password() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
             if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle : title,
               text: text,
               content: ("\n              <div class=\"dialog-input-field item-input\">\n                <div class=\"item-input-wrap\">\n                  <input type=\"password\" name=\"dialog-password\" placeholder=\"" + (app.params.dialog.passwordPlaceholder) + "\" class=\"dialog-input\">\n                </div>\n              </div>"),
@@ -11028,9 +11142,19 @@
               destroyOnClose: destroyOnClose,
             }).open();
           },
-          preloader: function preloader(title, color) {
+          preloader: function preloader() {
+            var args = [], len = arguments.length;
+            while ( len-- ) args[ len ] = arguments[ len ];
+
+            var hostEl;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            var title = args[0];
+            var color = args[1];
             var preloaderInner = app.theme !== 'md' ? '' : Utils.mdPreloaderContent;
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' || title === null ? app.params.dialog.preloaderTitle : title,
               content: ("<div class=\"preloader" + (color ? (" color-" + color) : '') + "\">" + preloaderInner + "</div>"),
               cssClass: 'dialog-preloader',
@@ -11038,26 +11162,32 @@
             }).open();
           },
           progress: function progress() {
-            var assign, assign$1, assign$2;
+            var assign, assign$1, assign$2, assign$3;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var title = args[0];
-            var progress = args[1];
-            var color = args[2];
+            var hostEl;
+            var title;
+            var progress;
+            var color;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, title = assign[0], progress = assign[1], color = assign[2]);
             if (args.length === 2) {
               if (typeof args[0] === 'number') {
-                (assign = args, progress = assign[0], color = assign[1], title = assign[2]);
+                (assign$1 = args, progress = assign$1[0], color = assign$1[1], title = assign$1[2]);
               } else if (typeof args[0] === 'string' && typeof args[1] === 'string') {
-                (assign$1 = args, title = assign$1[0], color = assign$1[1], progress = assign$1[2]);
+                (assign$2 = args, title = assign$2[0], color = assign$2[1], progress = assign$2[2]);
               }
             } else if (args.length === 1) {
               if (typeof args[0] === 'number') {
-                (assign$2 = args, progress = assign$2[0], title = assign$2[1], color = assign$2[2]);
+                (assign$3 = args, progress = assign$3[0], title = assign$3[1], color = assign$3[2]);
               }
             }
             var infinite = typeof progress === 'undefined';
             var dialog = new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? app.params.dialog.progressTitle : title,
               cssClass: 'dialog-progress',
               content: ("\n              <div class=\"progressbar" + (infinite ? '-infinite' : '') + (color ? (" color-" + color) : '') + "\">\n                " + (!infinite ? '<span></span>' : '') + "\n              </div>\n            "),
@@ -14380,6 +14510,12 @@
               tabsChanged();
             })
             .slideTo($newTabEl.index(), animate ? undefined : 0);
+        } else if (swiper && swiper.animating) {
+          animated = true;
+          swiper
+            .once('slideChangeTransitionEnd', function () {
+              tabsChanged();
+            });
         }
       }
 
@@ -17738,6 +17874,12 @@
         calendar.DateHandleClass = Date;
       }
 
+      var $hostEl;
+      if (calendar.params.hostEl) {
+        $hostEl = $$1(calendar.params.hostEl);
+        if ($hostEl.length === 0) { return calendar; }
+      }
+
       var $containerEl;
       if (calendar.params.containerEl) {
         $containerEl = $$1(calendar.params.containerEl);
@@ -17764,6 +17906,8 @@
 
       Utils.extend(calendar, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $containerEl: $containerEl,
         containerEl: $containerEl && $containerEl[0],
         inline: $containerEl && $containerEl.length > 0,
@@ -19001,6 +19145,7 @@
       var app = calendar.app;
       var opened = calendar.opened;
       var inline = calendar.inline;
+      var $hostEl = calendar.$hostEl;
       var $inputEl = calendar.$inputEl;
       var params = calendar.params;
       if (opened) { return; }
@@ -19022,6 +19167,7 @@
       var modalContent = calendar.render();
 
       var modalParams = {
+        hostEl: $hostEl,
         targetEl: $inputEl,
         scrollToEl: calendar.params.scrollToInput ? $inputEl : undefined,
         content: modalContent,
@@ -28552,7 +28698,11 @@
           if (!view) { view = app.views.main; }
           var router = view.router;
           var tabRoute = router.findTabRoute(swiper.slides.eq(swiper.activeIndex)[0]);
-          if (tabRoute) { router.navigate(tabRoute.path); }
+          if (tabRoute) {
+            setTimeout(function () {
+              router.navigate(tabRoute.path);
+            }, 0);
+          }
         } else {
           app.tab.show({
             tabEl: swiper.slides.eq(swiper.activeIndex),
@@ -31268,11 +31418,11 @@
           return new ViAd(app, adParams);
         },
         loadSdk: function loadSdk() {
-          if (app.vi.skdReady) { return; }
+          if (app.vi.sdkReady) { return; }
           var script = doc.createElement('script');
           script.onload = function onload() {
             app.emit('viSdkReady');
-            app.vi.skdReady = true;
+            app.vi.sdkReady = true;
           };
           script.src = 'https://c.vi-serve.com/viadshtml/vi.min.js';
           $$1('head').append(script);
