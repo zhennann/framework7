@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: July 25, 2018
+ * Released on: July 26, 2018
  */
 
 (function (global, factory) {
@@ -326,6 +326,9 @@
     Object.keys($props).forEach(function (propKey) {
       if (typeof $props[propKey] !== 'undefined') { props[propKey] = $props[propKey]; }
     });
+
+    // by zhennann
+    Object.assign(props, component._data);
 
     var children = [];
     Object.keys(component.$slots).forEach(function (slotName) {
@@ -9634,7 +9637,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: July 25, 2018
+   * Released on: July 26, 2018
    */
 
   var Plugin = {

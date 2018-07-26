@@ -2,7 +2,7 @@
 /* eslint no-console: "off" */
 /* eslint global-require: "off" */
 /* eslint no-param-reassign: ["error", { "props": false }] */
-const phenome = require('phenome');
+const phenome = require('@zhennann/phenome'); // by zhennann
 const fs = require('fs');
 const { transformSync } = require('@babel/core');
 
