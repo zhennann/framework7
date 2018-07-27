@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: July 26, 2018
+ * Released on: July 27, 2018
  */
 
 (function (global, factory) {
@@ -8193,6 +8193,8 @@
         if (useDefaultBackdrop) {
           var app = self.$f7;
           useBackdrop = app.params.sheet && app.params.sheet.backdrop !== undefined ? app.params.sheet.backdrop : self.$theme.md;
+        } else {
+          useBackdrop = backdrop;
         }
 
         self.f7Sheet = self.$f7.sheet.create({
@@ -9637,7 +9639,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: July 26, 2018
+   * Released on: July 27, 2018
    */
 
   var Plugin = {
