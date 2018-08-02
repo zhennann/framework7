@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: July 27, 2018
+ * Released on: August 2, 2018
  */
 import Vue from 'vue';
 import f7AccordionContent from './components/accordion-content';
@@ -190,6 +190,13 @@ const Plugin = {
     Object.defineProperty(Extend.prototype, '$f7', {
       get() {
         return f7.instance;
+      },
+    });
+
+    // by zhennann
+    Object.defineProperty(Extend.prototype, '$vuef7', {
+      get() {
+        return f7;
       },
     });
 

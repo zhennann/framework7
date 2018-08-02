@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: July 27, 2018
+ * Released on: August 2, 2018
  */
 
 (function (global, factory) {
@@ -9639,7 +9639,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: July 27, 2018
+   * Released on: August 2, 2018
    */
 
   var Plugin = {
@@ -9738,6 +9738,13 @@
       Object.defineProperty(Extend.prototype, '$f7', {
         get: function get() {
           return f7.instance;
+        },
+      });
+
+      // by zhennann
+      Object.defineProperty(Extend.prototype, '$vuef7', {
+        get: function get() {
+          return f7;
         },
       });
 

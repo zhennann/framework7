@@ -21,6 +21,13 @@ const Plugin = {
       },
     });
 
+    // by zhennann
+    Object.defineProperty(Extend.prototype, '$vuef7', {
+      get() {
+        return f7;
+      },
+    });
+
     const $theme = {};
     const { theme } = params;
     if (theme === 'md') $theme.md = true;
