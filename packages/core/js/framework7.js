@@ -9977,11 +9977,18 @@
 
       if ($tabbarEl.length === 0 || !($tabbarEl.hasClass('tabbar') || $tabbarEl.hasClass('tabbar-labels'))) { return; }
 
-      if ($tabbarEl.find('.tab-link-highlight').length === 0) {
-        $tabbarEl.children('.toolbar-inner').append('<span class="tab-link-highlight"></span>');
+      var $highlightEl = $tabbarEl.find('.tab-link-highlight');
+      var tabLinksCount = $tabbarEl.find('.tab-link').length;
+      if (tabLinksCount === 0) {
+        $highlightEl.remove();
+        return;
       }
 
-      var $highlightEl = $tabbarEl.find('.tab-link-highlight');
+      if ($highlightEl.length === 0) {
+        $tabbarEl.children('.toolbar-inner').append('<span class="tab-link-highlight"></span>');
+        $highlightEl = $tabbarEl.find('.tab-link-highlight');
+      }
+
       var $activeLink = $tabbarEl.find('.tab-link-active');
       var highlightWidth;
       var highlightTranslate;
@@ -9991,7 +9998,6 @@
         highlightTranslate = ($activeLink[0].offsetLeft) + "px";
       } else {
         var activeIndex = $activeLink.index();
-        var tabLinksCount = $tabbarEl.find('.tab-link').length;
         highlightWidth = (100 / tabLinksCount) + "%";
         highlightTranslate = ((app.rtl ? -activeIndex : activeIndex) * 100) + "%";
       }
