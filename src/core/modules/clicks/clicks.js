@@ -50,7 +50,7 @@ function initClicks(app) {
     }
     const validUrl = url && url.length > 0 && url !== '#' && !isTabLink;
     const template = clickedLinkData.template;
-    if (validUrl || clickedLink.hasClass('back') || template) {
+    if (!clickedLink.hasClass('no-auto') && (validUrl || clickedLink.hasClass('back') || template)) {
       let view;
       if (clickedLinkData.view) {
         view = $(clickedLinkData.view)[0].f7View;

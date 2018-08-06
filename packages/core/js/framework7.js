@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: August 5, 2018
+ * Released on: August 6, 2018
  */
 
 (function (global, factory) {
@@ -9109,7 +9109,7 @@
       }
       var validUrl = url && url.length > 0 && url !== '#' && !isTabLink;
       var template = clickedLinkData.template;
-      if (validUrl || clickedLink.hasClass('back') || template) {
+      if (!clickedLink.hasClass('no-auto') && (validUrl || clickedLink.hasClass('back') || template)) {
         var view;
         if (clickedLinkData.view) {
           view = $$1(clickedLinkData.view)[0].f7View;
