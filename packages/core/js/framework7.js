@@ -9071,6 +9071,7 @@
       var url = isLink && clickedLink.attr('href');
       var isTabLink = isLink && clickedLink.hasClass('tab-link') && (clickedLink.attr('data-tab') || (url && url.indexOf('#') === 0));
 
+      // by zhennann
       // Check if no-auto
       if (clickedLink.hasClass('no-auto')) { return; }
 
@@ -11575,6 +11576,14 @@
         var targetOffset = $targetEl.offset();
         targetOffsetLeft = targetOffset.left - app.left;
         targetOffsetTop = targetOffset.top - app.top;
+
+        // by zhennann
+        var view = $targetEl.parents('.view');
+        if (view.length > 0) {
+          var viewOffset = view.offset();
+          targetOffsetLeft -= viewOffset.left;
+          targetOffsetTop -= viewOffset.top;
+        }
 
         var targetParentPage = $targetEl.parents('.page');
         if (targetParentPage.length > 0) {
