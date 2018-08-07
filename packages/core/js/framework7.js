@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: August 6, 2018
+ * Released on: August 7, 2018
  */
 
 (function (global, factory) {
@@ -9071,6 +9071,9 @@
       var url = isLink && clickedLink.attr('href');
       var isTabLink = isLink && clickedLink.hasClass('tab-link') && (clickedLink.attr('data-tab') || (url && url.indexOf('#') === 0));
 
+      // Check if no-auto
+      if (clickedLink.hasClass('no-auto')) { return; }
+
       // Check if link is external
       if (isLink) {
         // eslint-disable-next-line
@@ -9109,7 +9112,7 @@
       }
       var validUrl = url && url.length > 0 && url !== '#' && !isTabLink;
       var template = clickedLinkData.template;
-      if (!clickedLink.hasClass('no-auto') && (validUrl || clickedLink.hasClass('back') || template)) {
+      if (validUrl || clickedLink.hasClass('back') || template) {
         var view;
         if (clickedLinkData.view) {
           view = $$1(clickedLinkData.view)[0].f7View;
@@ -14642,7 +14645,7 @@
         if ( data === void 0 ) data = {};
 
         var app = this;
-        if (!$clickedEl.hasClass('no-auto') && (($clickedEl.attr('href') && $clickedEl.attr('href').indexOf('#') === 0) || $clickedEl.attr('data-tab'))) {
+        if (($clickedEl.attr('href') && $clickedEl.attr('href').indexOf('#') === 0) || $clickedEl.attr('data-tab')) {
           app.tab.show({
             tabEl: data.tab || $clickedEl.attr('href'),
             tabLinkEl: $clickedEl,

@@ -12,6 +12,9 @@ function initClicks(app) {
     const url = isLink && clickedLink.attr('href');
     const isTabLink = isLink && clickedLink.hasClass('tab-link') && (clickedLink.attr('data-tab') || (url && url.indexOf('#') === 0));
 
+    // Check if no-auto
+    if (clickedLink.hasClass('no-auto')) return;
+
     // Check if link is external
     if (isLink) {
       // eslint-disable-next-line
@@ -50,7 +53,7 @@ function initClicks(app) {
     }
     const validUrl = url && url.length > 0 && url !== '#' && !isTabLink;
     const template = clickedLinkData.template;
-    if (!clickedLink.hasClass('no-auto') && (validUrl || clickedLink.hasClass('back') || template)) {
+    if (validUrl || clickedLink.hasClass('back') || template) {
       let view;
       if (clickedLinkData.view) {
         view = $(clickedLinkData.view)[0].f7View;
