@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: August 7, 2018
+ * Released on: August 8, 2018
  */
 
 (function (global, factory) {
@@ -3351,6 +3351,9 @@
           }
         } else if (Device.desktop) {
           classNames.push('device-desktop');
+          // by zhennann
+          if (Device.macos) { classNames.push('device-macos'); }
+          else if (Device.windows) { classNames.push('device-windows'); }
         }
         if (Device.cordova || Device.phonegap) {
           classNames.push('device-cordova');
