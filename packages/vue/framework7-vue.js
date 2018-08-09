@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: August 8, 2018
+ * Released on: August 9, 2018
  */
 
 (function (global, factory) {
@@ -9639,7 +9639,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: August 8, 2018
+   * Released on: August 9, 2018
    */
 
   var Plugin = {

@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: August 8, 2018
+ * Released on: August 9, 2018
  */
 
 (function (global, factory) {
@@ -9073,10 +9073,6 @@
       var isLink = clickedLink.length > 0;
       var url = isLink && clickedLink.attr('href');
       var isTabLink = isLink && clickedLink.hasClass('tab-link') && (clickedLink.attr('data-tab') || (url && url.indexOf('#') === 0));
-
-      // by zhennann
-      // Check if no-auto
-      if (clickedLink.hasClass('no-auto')) { return; }
 
       // Check if link is external
       if (isLink) {

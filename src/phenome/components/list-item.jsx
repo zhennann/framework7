@@ -235,8 +235,8 @@ export default {
         <slot name="root-start" />
         {swipeout ? (
           <div className="swipeout-content">{linkItemEl}</div>
-        ) :
-          linkItemEl
+        )
+          : linkItemEl
         }
         {isSortable && (<div className="sortable-handler" />)}
         {(swipeout || accordionItem) && self.slots.default}
