@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: May 15, 2019
+ * Released on: May 16, 2019
  */
 
 (function (global, factory) {
@@ -21566,9 +21566,11 @@
         }
       } else {
         optionEl = ss.$selectEl.find(("option[value=\"" + newValue + "\"]"))[0];
-        displayAs = optionEl.dataset ? optionEl.dataset.displayAs : $(optionEl).data('display-as');
-        text = displayAs && typeof displayAs !== 'undefined' ? displayAs : optionEl.textContent;
-        optionText = [text];
+        if (optionEl) {
+          displayAs = optionEl.dataset ? optionEl.dataset.displayAs : $(optionEl).data('display-as');
+          text = displayAs && typeof displayAs !== 'undefined' ? displayAs : optionEl.textContent;
+          optionText = [text];
+        }
         ss.selectEl.value = newValue;
       }
       ss.$valueEl.text(optionText.join(', '));
