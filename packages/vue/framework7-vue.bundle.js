@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: July 1, 2019
+ * Released on: July 20, 2019
  */
 
 (function (global, factory) {
@@ -378,6 +378,9 @@
     Object.keys($props).forEach(function (propKey) {
       if (typeof $props[propKey] !== 'undefined') { props[propKey] = $props[propKey]; }
     });
+
+    // by zhennann
+    Object.assign(props, component._data);
 
     var children = [];
     Object.keys(component.$slots).forEach(function (slotName) {
@@ -1608,7 +1611,7 @@
       active: Boolean,
       disabled: Boolean,
       tooltip: String
-    }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
+    }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
 
     render: function render() {
       var _h = this.$createElement;
@@ -3771,7 +3774,7 @@
       tooltip: String,
       smartSelect: Boolean,
       smartSelectParams: Object
-    }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
+    }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
 
     data: function data() {
       var props = __vueComponentProps(this);
@@ -4020,7 +4023,7 @@
       href: [Boolean, String],
       target: String,
       tooltip: String
-    }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
+    }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
 
     render: function render() {
       var _h = this.$createElement;
@@ -5263,7 +5266,7 @@
       required: Boolean,
       disabled: Boolean,
       virtualListIndex: Number
-    }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
+    }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
 
     data: function data() {
       var props = __vueComponentProps(this);
@@ -5366,7 +5369,7 @@
           var linkAttrs = Object.assign({
             href: link === true ? '' : link || href,
             target: target
-          }, Mixins.linkRouterAttrs(props), Mixins.linkActionsAttrs(props));
+          }, Mixins.linkRouterAttrs(props), {}, Mixins.linkActionsAttrs(props));
           var linkClasses = Utils.classNames({
             'item-link': true,
             'no-fastclick': noFastclick || noFastClick,
@@ -6149,7 +6152,7 @@
       href: String,
       target: String,
       divider: Boolean
-    }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
+    }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
 
     render: function render() {
       var _h = this.$createElement;
@@ -6309,7 +6312,7 @@
       link: Boolean,
       target: String,
       dropdown: Boolean
-    }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
+    }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
 
     render: function render() {
       var _h = this.$createElement;
@@ -8963,18 +8966,21 @@
 
         self.f7Panel = self.$f7.panel.create({
           el: el,
-          resizable: resizable,
-          on: {
-            open: self.onOpen,
-            opened: self.onOpened,
-            close: self.onClose,
-            closed: self.onClosed,
-            backdropClick: self.onBackdropClick,
-            swipe: self.onPanelSwipe,
-            swipeOpen: self.onPanelSwipeOpen,
-            breakpoint: self.onBreakpoint,
-            resize: self.onResize
-          }
+          resizable: resizable
+        });
+        var events = {
+          open: self.onOpen,
+          opened: self.onOpened,
+          close: self.onClose,
+          closed: self.onClosed,
+          backdropClick: self.onBackdropClick,
+          swipe: self.onPanelSwipe,
+          swipeOpen: self.onPanelSwipeOpen,
+          breakpoint: self.onBreakpoint,
+          resize: self.onResize
+        };
+        Object.keys(events).forEach(function (ev) {
+          self.f7Panel.on(ev, events[ev]);
         });
       });
 
@@ -10250,7 +10256,7 @@
     },
 
     created: function created() {
-      Utils.bindMethods(this, ['onOpen', 'onOpened', 'onClose', 'onClosed', 'onStepOpen', 'onStepClose']);
+      Utils.bindMethods(this, ['onOpen', 'onOpened', 'onClose', 'onClosed', 'onStepOpen', 'onStepClose', 'onStepProgress']);
     },
 
     mounted: function mounted() {
@@ -10263,6 +10269,7 @@
       el.addEventListener('sheet:closed', self.onClosed);
       el.addEventListener('sheet:stepopen', self.onStepOpen);
       el.addEventListener('sheet:stepclose', self.onStepClose);
+      el.addEventListener('sheet:stepprogress', self.onStepProgress);
       var props = self.props;
       var opened = props.opened;
       var backdrop = props.backdrop;
@@ -10306,9 +10313,14 @@
       el.removeEventListener('sheet:closed', self.onClosed);
       el.removeEventListener('sheet:stepopen', self.onStepOpen);
       el.removeEventListener('sheet:stepclose', self.onStepClose);
+      el.removeEventListener('sheet:stepprogress', self.onStepProgress);
     },
 
     methods: {
+      onStepProgress: function onStepProgress(event) {
+        this.dispatchEvent('sheet:stepprogress sheetStepProgress', event.detail);
+      },
+
       onStepOpen: function onStepOpen(event) {
         this.dispatchEvent('sheet:stepopen sheetStepOpen', event);
       },
@@ -11589,7 +11601,7 @@
         type: [Boolean, String],
         default: undefined
       }
-    }, Mixins.colorProps, Mixins.linkActionsProps, Mixins.linkRouterProps, Mixins.linkIconProps),
+    }, Mixins.colorProps, {}, Mixins.linkActionsProps, {}, Mixins.linkRouterProps, {}, Mixins.linkIconProps),
     name: 'f7-treeview-item',
 
     render: function render() {
@@ -12216,7 +12228,7 @@
             tabRouter = tabData;
           }
         });
-        var hasComponent = !!tabRouter.tabContent;
+        var hasComponent = tabRouter && tabRouter.component;
         if (!tabRouter || !hasComponent) {
           tabEl.innerHTML = ''; // eslint-disable-line
           return;
@@ -12291,7 +12303,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: July 1, 2019
+   * Released on: July 20, 2019
    */
 
   var Plugin = {
@@ -12405,6 +12417,13 @@
       Object.defineProperty(Extend.prototype, '$f7', {
         get: function get() {
           return f7.instance;
+        },
+      });
+
+      // by zhennann
+      Object.defineProperty(Extend.prototype, '$vuef7', {
+        get: function get() {
+          return f7;
         },
       });
 

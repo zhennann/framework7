@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: July 1, 2019
+ * Released on: July 20, 2019
  */
 
 (function (global, factory) {
@@ -2879,7 +2879,73 @@
         '--f7-theme-color-tint': tint,
       };
     },
+    // by zhennann
+    getViewHost: function getViewHost(app, $el) {
+      var $hostEl = $el.parents('.views');
+      if ($hostEl.length === 0) { $hostEl = $el.parents('.view'); }
+      if ($hostEl.length === 0) { $hostEl = app.root; }
+      return $hostEl;
+    },
   };
+
+  var Support = (function Support() {
+    var testDiv = doc.createElement('div');
+
+    return {
+      touch: (function checkTouch() {
+        return !!((win.navigator.maxTouchPoints > 0) || ('ontouchstart' in win) || (win.DocumentTouch && doc instanceof win.DocumentTouch));
+      }()),
+
+      pointerEvents: !!(win.navigator.pointerEnabled || win.PointerEvent || ('maxTouchPoints' in win.navigator && win.navigator.maxTouchPoints > 0)),
+      prefixedPointerEvents: !!win.navigator.msPointerEnabled,
+
+      transition: (function checkTransition() {
+        var style = testDiv.style;
+        return ('transition' in style || 'webkitTransition' in style || 'MozTransition' in style);
+      }()),
+      transforms3d: (win.Modernizr && win.Modernizr.csstransforms3d === true) || (function checkTransforms3d() {
+        var style = testDiv.style;
+        return ('webkitPerspective' in style || 'MozPerspective' in style || 'OPerspective' in style || 'MsPerspective' in style || 'perspective' in style);
+      }()),
+
+      flexbox: (function checkFlexbox() {
+        var div = doc.createElement('div').style;
+        var styles = ('alignItems webkitAlignItems webkitBoxAlign msFlexAlign mozBoxAlign webkitFlexDirection msFlexDirection mozBoxDirection mozBoxOrient webkitBoxDirection webkitBoxOrient').split(' ');
+        for (var i = 0; i < styles.length; i += 1) {
+          if (styles[i] in div) { return true; }
+        }
+        return false;
+      }()),
+
+      observer: (function checkObserver() {
+        return ('MutationObserver' in win || 'WebkitMutationObserver' in win);
+      }()),
+
+      passiveListener: (function checkPassiveListener() {
+        var supportsPassive = false;
+        try {
+          var opts = Object.defineProperty({}, 'passive', {
+            // eslint-disable-next-line
+            get: function get() {
+              supportsPassive = true;
+            },
+          });
+          win.addEventListener('testPassiveListener', null, opts);
+        } catch (e) {
+          // No support
+        }
+        return supportsPassive;
+      }()),
+
+      gestures: (function checkGestures() {
+        return 'ongesturestart' in win;
+      }()),
+
+      intersectionObserver: (function checkObserver() {
+        return ('IntersectionObserver' in win);
+      }()),
+    };
+  }());
 
   var Device = (function Device() {
     var platform = win.navigator.platform;
@@ -2920,9 +2986,24 @@
     var ie = ua.indexOf('MSIE ') >= 0 || ua.indexOf('Trident/') >= 0;
     var edge = ua.indexOf('Edge/') >= 0;
     var firefox = ua.indexOf('Gecko/') >= 0 && ua.indexOf('Firefox/') >= 0;
-    var macos = platform === 'MacIntel';
     var windows = platform === 'Win32';
     var electron = ua.toLowerCase().indexOf('electron') >= 0;
+    var macos = platform === 'MacIntel';
+
+    // iPadOs 13 fix
+    if (!ipad
+      && macos
+      && Support.touch
+      && (
+        (screenWidth === 1024 && screenHeight === 1366) // Pro 12.9
+        || (screenWidth === 834 && screenHeight === 1194) // Pro 11
+        || (screenWidth === 834 && screenHeight === 1112) // Pro 10.5
+        || (screenWidth === 768 && screenHeight === 1024) // other
+      )
+    ) {
+      ipad = ua.match(/(Version)\/([\d.]+)/);
+      macos = false;
+    }
 
     device.ie = ie;
     device.edge = edge;
@@ -3809,65 +3890,6 @@
       },
     },
   };
-
-  var Support = (function Support() {
-    var testDiv = doc.createElement('div');
-
-    return {
-      touch: (function checkTouch() {
-        return !!((win.navigator.maxTouchPoints > 0) || ('ontouchstart' in win) || (win.DocumentTouch && doc instanceof win.DocumentTouch));
-      }()),
-
-      pointerEvents: !!(win.navigator.pointerEnabled || win.PointerEvent || ('maxTouchPoints' in win.navigator && win.navigator.maxTouchPoints > 0)),
-      prefixedPointerEvents: !!win.navigator.msPointerEnabled,
-
-      transition: (function checkTransition() {
-        var style = testDiv.style;
-        return ('transition' in style || 'webkitTransition' in style || 'MozTransition' in style);
-      }()),
-      transforms3d: (win.Modernizr && win.Modernizr.csstransforms3d === true) || (function checkTransforms3d() {
-        var style = testDiv.style;
-        return ('webkitPerspective' in style || 'MozPerspective' in style || 'OPerspective' in style || 'MsPerspective' in style || 'perspective' in style);
-      }()),
-
-      flexbox: (function checkFlexbox() {
-        var div = doc.createElement('div').style;
-        var styles = ('alignItems webkitAlignItems webkitBoxAlign msFlexAlign mozBoxAlign webkitFlexDirection msFlexDirection mozBoxDirection mozBoxOrient webkitBoxDirection webkitBoxOrient').split(' ');
-        for (var i = 0; i < styles.length; i += 1) {
-          if (styles[i] in div) { return true; }
-        }
-        return false;
-      }()),
-
-      observer: (function checkObserver() {
-        return ('MutationObserver' in win || 'WebkitMutationObserver' in win);
-      }()),
-
-      passiveListener: (function checkPassiveListener() {
-        var supportsPassive = false;
-        try {
-          var opts = Object.defineProperty({}, 'passive', {
-            // eslint-disable-next-line
-            get: function get() {
-              supportsPassive = true;
-            },
-          });
-          win.addEventListener('testPassiveListener', null, opts);
-        } catch (e) {
-          // No support
-        }
-        return supportsPassive;
-      }()),
-
-      gestures: (function checkGestures() {
-        return 'ongesturestart' in win;
-      }()),
-
-      intersectionObserver: (function checkObserver() {
-        return ('IntersectionObserver' in win);
-      }()),
-    };
-  }());
 
   var SupportModule = {
     name: 'support',
@@ -11804,7 +11826,7 @@
     if ($viewEl.length > 1) {
       if ($viewEl.hasClass('tab')) {
         // Tabs
-        $viewEl = $viewEl.children('.view.tab-active');
+        $viewEl = $viewsEl.children('.view.tab-active');
       }
     }
     if ($popoverView.length > 0 && $popoverView[0].f7View) { return $popoverView[0].f7View; }
@@ -13024,8 +13046,22 @@
 
       var $modalParentEl = $el.parent();
       var wasInDom = $el.parents(doc).length > 0;
-      if (app.params.modal.moveToRoot && !$modalParentEl.is(app.root)) {
-        app.root.append($el);
+      var $hostEl;
+      if (app.params.modal.moveToRoot) {
+        $hostEl = app.root;
+      } else {
+        $hostEl = $(modal.params.hostEl);
+        if ($hostEl.length === 0) {
+          if (wasInDom) {
+            $hostEl = Utils.getViewHost(app, $el);
+          } else {
+            var $targetEl = $(modal.params.targetEl);
+            $hostEl = Utils.getViewHost(app, $targetEl);
+          }
+        }
+      }
+      if ($hostEl && !$modalParentEl.is($hostEl)) {
+        $hostEl.append($el);
         modal.once((type + "Closed"), function () {
           if (wasInDom) {
             $modalParentEl.append($el);
@@ -13034,6 +13070,20 @@
           }
         });
       }
+
+      // Backdrop
+      if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
+        var className = $backdropEl.prop('className');
+        var backdropEl = $hostEl.children(("." + className));
+        if (backdropEl.length === 0) {
+          backdropEl = $(("<div class=\"" + className + "\"></div>"));
+          $hostEl.append(backdropEl);
+        }
+        $backdropEl = backdropEl;
+        modal.$backdropEl = backdropEl;
+        modal.backdropEl = backdropEl[0];
+      }
+
       // Show Modal
       $el.show();
 
@@ -13290,6 +13340,7 @@
       }, params);
       if (typeof extendedParams.closeByBackdropClick === 'undefined') {
         extendedParams.closeByBackdropClick = app.params.dialog.closeByBackdropClick;
+        extendedParams.backdrop = app.params.dialog.backdrop;
       }
 
       // Extends with open/close Modal methods;
@@ -13305,6 +13356,13 @@
       var cssClass = extendedParams.cssClass;
 
       dialog.params = extendedParams;
+
+      // Host El
+      var $hostEl;
+      if (dialog.params.hostEl) {
+        $hostEl = $(dialog.params.hostEl);
+        if ($hostEl.length === 0) { return dialog; }
+      }
 
       // Find Element
       var $el;
@@ -13334,10 +13392,14 @@
         return dialog.destroy();
       }
 
-      var $backdropEl = app.root.children('.dialog-backdrop');
-      if ($backdropEl.length === 0) {
-        $backdropEl = $('<div class="dialog-backdrop"></div>');
-        app.root.append($backdropEl);
+      // Backdrop
+      var $backdropEl;
+      if (dialog.params.backdrop) {
+        $backdropEl = app.root.children('.dialog-backdrop');
+        if ($backdropEl.length === 0) {
+          $backdropEl = $('<div class="dialog-backdrop"></div>');
+          app.root.append($backdropEl);
+        }
       }
 
       // Assign events
@@ -13394,10 +13456,12 @@
       }
       Utils.extend(dialog, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $el: $el,
         el: $el[0],
         $backdropEl: $backdropEl,
-        backdropEl: $backdropEl[0],
+        backdropEl: $backdropEl && $backdropEl[0],
         type: 'dialog',
         setProgress: function setProgress(progress, duration) {
           app.progressbar.set($el.find('.progressbar'), progress, duration);
@@ -13509,17 +13573,23 @@
         {
           // Shortcuts
           alert: function alert() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2]);
             if (args.length === 2 && typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], title = assign[2]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], title = assign$1[2]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle() : title,
               text: text,
               buttons: [{
@@ -13532,20 +13602,26 @@
             }).open();
           },
           prompt: function prompt() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
-            var defaultValue = args[4];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            var defaultValue;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3], defaultValue = assign[4]);
             if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], defaultValue = assign[3], title = assign[4]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], defaultValue = assign$1[3], title = assign$1[4]);
             }
             defaultValue = typeof defaultValue === 'undefined' || defaultValue === null ? '' : defaultValue;
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle() : title,
               text: text,
               content: ("<div class=\"dialog-input-field input\"><input type=\"text\" class=\"dialog-input\" value=\"" + defaultValue + "\"></div>"),
@@ -13569,18 +13645,24 @@
             }).open();
           },
           confirm: function confirm() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
             if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle() : title,
               text: text,
               buttons: [
@@ -13600,18 +13682,24 @@
             }).open();
           },
           login: function login() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
             if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle() : title,
               text: text,
               content: ("\n              <div class=\"dialog-input-field dialog-input-double input\">\n                <input type=\"text\" name=\"dialog-username\" placeholder=\"" + (app.params.dialog.usernamePlaceholder) + "\" class=\"dialog-input\">\n              </div>\n              <div class=\"dialog-input-field dialog-input-double input\">\n                <input type=\"password\" name=\"dialog-password\" placeholder=\"" + (app.params.dialog.passwordPlaceholder) + "\" class=\"dialog-input\">\n              </div>"),
@@ -13636,18 +13724,24 @@
             }).open();
           },
           password: function password() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
             if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle() : title,
               text: text,
               content: ("\n              <div class=\"dialog-input-field input\">\n                <input type=\"password\" name=\"dialog-password\" placeholder=\"" + (app.params.dialog.passwordPlaceholder) + "\" class=\"dialog-input\">\n              </div>"),
@@ -13670,9 +13764,19 @@
               destroyOnClose: destroyOnClose,
             }).open();
           },
-          preloader: function preloader(title, color) {
+          preloader: function preloader() {
+            var args = [], len = arguments.length;
+            while ( len-- ) args[ len ] = arguments[ len ];
+
+            var hostEl;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            var title = args[0];
+            var color = args[1];
             var preloaderInner = Utils[((app.theme) + "PreloaderContent")] || '';
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' || title === null ? app.params.dialog.preloaderTitle : title,
               content: ("<div class=\"preloader" + (color ? (" color-" + color) : '') + "\">" + preloaderInner + "</div>"),
               cssClass: 'dialog-preloader',
@@ -13680,26 +13784,32 @@
             }).open();
           },
           progress: function progress() {
-            var assign, assign$1, assign$2;
+            var assign, assign$1, assign$2, assign$3;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var title = args[0];
-            var progress = args[1];
-            var color = args[2];
+            var hostEl;
+            var title;
+            var progress;
+            var color;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, title = assign[0], progress = assign[1], color = assign[2]);
             if (args.length === 2) {
               if (typeof args[0] === 'number') {
-                (assign = args, progress = assign[0], color = assign[1], title = assign[2]);
+                (assign$1 = args, progress = assign$1[0], color = assign$1[1], title = assign$1[2]);
               } else if (typeof args[0] === 'string' && typeof args[1] === 'string') {
-                (assign$1 = args, title = assign$1[0], color = assign$1[1], progress = assign$1[2]);
+                (assign$2 = args, title = assign$2[0], color = assign$2[1], progress = assign$2[2]);
               }
             } else if (args.length === 1) {
               if (typeof args[0] === 'number') {
-                (assign$2 = args, progress = assign$2[0], title = assign$2[1], color = assign$2[2]);
+                (assign$3 = args, progress = assign$3[0], title = assign$3[1], color = assign$3[2]);
               }
             }
             var infinite = typeof progress === 'undefined';
             var dialog = new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? app.params.dialog.progressTitle : title,
               cssClass: 'dialog-progress',
               content: ("\n              <div class=\"progressbar" + (infinite ? '-infinite' : '') + (color ? (" color-" + color) : '') + "\">\n                " + (!infinite ? '<span></span>' : '') + "\n              </div>\n            "),
@@ -14087,6 +14197,13 @@
 
       popover.params = extendedParams;
 
+      // Host El
+      var $hostEl;
+      if (popover.params.hostEl) {
+        $hostEl = $(popover.params.hostEl);
+        if ($hostEl.length === 0) { return popover; }
+      }
+
       // Find Element
       var $el;
       if (!popover.params.el) {
@@ -14132,6 +14249,8 @@
 
       Utils.extend(popover, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $el: $el,
         el: $el[0],
         $targetEl: $targetEl,
@@ -14248,6 +14367,26 @@
         $el.removeClass('popover-on-left popover-on-right popover-on-top popover-on-bottom popover-on-middle').css({ left: '', top: '' });
       }
 
+      // by zhennann
+      var parentExtend;
+      var view = $targetEl.parents('.view');
+      if (view.length > 0) {
+        var viewOffset = view.offset();
+        parentExtend = {
+          left: viewOffset.left,
+          top: viewOffset.top,
+          width: view.width(),
+          height: view.height(),
+        };
+      } else {
+        parentExtend = {
+          left: app.left,
+          top: app.top,
+          width: app.width,
+          height: app.height,
+        };
+      }
+
       var targetWidth;
       var targetHeight;
       var targetOffsetLeft;
@@ -14257,8 +14396,8 @@
         targetHeight = $targetEl.outerHeight();
 
         var targetOffset = $targetEl.offset();
-        targetOffsetLeft = targetOffset.left - app.left;
-        targetOffsetTop = targetOffset.top - app.top;
+        targetOffsetLeft = targetOffset.left - parentExtend.left;
+        targetOffsetTop = targetOffset.top - parentExtend.top;
 
         var targetParentPage = $targetEl.parents('.page');
         if (targetParentPage.length > 0) {
@@ -14278,7 +14417,7 @@
       // Top Position
       var position = app.theme === 'md' ? 'bottom' : 'top';
       if (app.theme === 'md') {
-        if (height < app.height - targetOffsetTop - targetHeight) {
+        if (height < parentExtend.height - targetOffsetTop - targetHeight) {
           // On bottom
           position = 'bottom';
           top = targetOffsetTop + targetHeight;
@@ -14291,11 +14430,11 @@
           position = 'middle';
           top = ((targetHeight / 2) + targetOffsetTop) - (height / 2);
         }
-        top = Math.max(8, Math.min(top, app.height - height - 8));
+        top = Math.max(8, Math.min(top, parentExtend.height - height - 8));
 
         // Horizontal Position
         var hPosition;
-        if (targetOffsetLeft < app.width / 2) {
+        if (targetOffsetLeft < parentExtend.width / 2) {
           hPosition = 'right';
           left = position === 'middle'
             ? targetOffsetLeft + targetWidth
@@ -14306,14 +14445,14 @@
             ? targetOffsetLeft - width
             : (targetOffsetLeft + targetWidth) - width;
         }
-        left = Math.max(8, Math.min(left, app.width - width - 8));
+        left = Math.max(8, Math.min(left, parentExtend.width - width - 8));
         $el.addClass(("popover-on-" + position + " popover-on-" + hPosition));
       } else {
         // ios and aurora
         if ((height + angleSize) < targetOffsetTop) {
           // On top
           top = targetOffsetTop - height - angleSize;
-        } else if ((height + angleSize) < app.height - targetOffsetTop - targetHeight) {
+        } else if ((height + angleSize) < parentExtend.height - targetOffsetTop - targetHeight) {
           // On bottom
           position = 'bottom';
           top = targetOffsetTop + targetHeight + angleSize;
@@ -14322,7 +14461,7 @@
           position = 'middle';
           top = ((targetHeight / 2) + targetOffsetTop) - (height / 2);
           diff = top;
-          top = Math.max(5, Math.min(top, app.height - height - 5));
+          top = Math.max(5, Math.min(top, parentExtend.height - height - 5));
           diff -= top;
         }
 
@@ -14330,7 +14469,7 @@
         if (position === 'top' || position === 'bottom') {
           left = ((targetWidth / 2) + targetOffsetLeft) - (width / 2);
           diff = left;
-          left = Math.max(5, Math.min(left, app.width - width - 5));
+          left = Math.max(5, Math.min(left, parentExtend.width - width - 5));
           if (position === 'top') {
             $angleEl.addClass('on-bottom');
           }
@@ -14344,9 +14483,9 @@
         } else if (position === 'middle') {
           left = targetOffsetLeft - width - angleSize;
           $angleEl.addClass('on-right');
-          if (left < 5 || (left + width > app.width)) {
+          if (left < 5 || (left + width > parentExtend.width)) {
             if (left < 5) { left = targetOffsetLeft + targetWidth + angleSize; }
-            if (left + width > app.width) { left = app.width - width - 5; }
+            if (left + width > parentExtend.width) { left = parentExtend.width - width - 5; }
             $angleEl.removeClass('on-right').addClass('on-left');
           }
           angleTop = ((height / 2) - angleSize) + diff;
@@ -14426,6 +14565,13 @@
       var actions = this;
 
       actions.params = extendedParams;
+
+      // Host El
+      var $hostEl;
+      if (actions.params.hostEl) {
+        $hostEl = $(actions.params.hostEl);
+        if ($hostEl.length === 0) { return actions; }
+      }
 
       // Buttons
       var groups;
@@ -14511,6 +14657,7 @@
         }
         if (convertToPopover && actions.popoverHtml) {
           popover = app.popover.create({
+            hostEl: $hostEl && $hostEl[0],
             content: actions.popoverHtml,
             backdrop: actions.params.backdrop,
             targetEl: targetEl,
@@ -14564,6 +14711,8 @@
 
       Utils.extend(actions, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $el: $el,
         el: $el ? $el[0] : undefined,
         $backdropEl: $backdropEl,
@@ -14892,7 +15041,6 @@
         }
 
         touchesDiff = startTouch.y - currentTouch.y;
-
         if (!isMoved) {
           sheetElOffsetHeight = $el[0].offsetHeight;
           startTranslate = Utils.getTranslate($el[0], 'y');
@@ -14911,6 +15059,17 @@
         $el
           .transition(0)
           .transform(("translate3d(0," + currentTranslate + "px,0)"));
+        if (sheet.params.swipeToStep) {
+          var progress;
+          if (isTopSheetModal) {
+            progress = 1 - (currentTranslate / swipeStepTranslate);
+          } else {
+            progress = (swipeStepTranslate - currentTranslate) / swipeStepTranslate;
+          }
+          progress = Math.min(Math.max(progress, 0), 1);
+          $el.trigger('sheet:stepprogress', progress);
+          sheet.emit('local::stepProgress sheetStepProgress', sheet, progress);
+        }
       }
       function handleTouchEnd() {
         isTouched = false;
@@ -14946,6 +15105,8 @@
           if (direction === openDirection && absCurrentTranslate < absSwipeStepTranslate) {
             // open step
             $el.removeClass('modal-in-swipe-step');
+            $el.trigger('sheet:stepprogress', 1);
+            sheet.emit('local::stepProgress sheetStepProgress', sheet, 1);
             $el.trigger('sheet:stepopen');
             sheet.emit('local::stepOpen sheetStepOpen', sheet);
           }
@@ -14956,6 +15117,8 @@
             } else {
               // close step
               $el.addClass('modal-in-swipe-step');
+              $el.trigger('sheet:stepprogress', 0);
+              sheet.emit('local::stepProgress sheetStepProgress', sheet, 0);
               $el.trigger('sheet:stepclose');
               sheet.emit('local::stepClose sheetStepClose', sheet);
             }
@@ -14963,6 +15126,8 @@
           if (direction === closeDirection && absCurrentTranslate <= absSwipeStepTranslate) {
             // close step
             $el.addClass('modal-in-swipe-step');
+            $el.trigger('sheet:stepprogress', 0);
+            sheet.emit('local::stepProgress sheetStepProgress', sheet, 0);
             $el.trigger('sheet:stepclose');
             sheet.emit('local::stepClose sheetStepClose', sheet);
           }
@@ -14974,6 +15139,8 @@
             if (absCurrentTranslate < (absSwipeStepTranslate / 2)) {
               // open step
               $el.removeClass('modal-in-swipe-step');
+              $el.trigger('sheet:stepprogress', 1);
+              sheet.emit('local::stepProgress sheetStepProgress', sheet, 1);
               $el.trigger('sheet:stepopen');
               sheet.emit('local::stepOpen sheetStepOpen', sheet);
             } else if ((absCurrentTranslate - absSwipeStepTranslate) > (sheetElOffsetHeight - absSwipeStepTranslate) / 2) {
@@ -14987,6 +15154,8 @@
             } else if (absCurrentTranslate > absSwipeStepTranslate / 2) {
               // close step
               $el.addClass('modal-in-swipe-step');
+              $el.trigger('sheet:stepprogress', 0);
+              sheet.emit('local::stepProgress sheetStepProgress', sheet, 0);
               $el.trigger('sheet:stepclose');
               sheet.emit('local::stepClose sheetStepClose', sheet);
             }
@@ -22652,6 +22821,12 @@
         calendar.DateHandleClass = Date;
       }
 
+      var $hostEl;
+      if (calendar.params.hostEl) {
+        $hostEl = $(calendar.params.hostEl);
+        if ($hostEl.length === 0) { return calendar; }
+      }
+
       var $containerEl;
       if (calendar.params.containerEl) {
         $containerEl = $(calendar.params.containerEl);
@@ -22678,6 +22853,8 @@
 
       Utils.extend(calendar, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $containerEl: $containerEl,
         containerEl: $containerEl && $containerEl[0],
         inline: $containerEl && $containerEl.length > 0,
@@ -23927,6 +24104,7 @@
       var app = calendar.app;
       var opened = calendar.opened;
       var inline = calendar.inline;
+      var $hostEl = calendar.$hostEl;
       var $inputEl = calendar.$inputEl;
       var params = calendar.params;
       if (opened) { return; }
@@ -23948,6 +24126,7 @@
       var modalContent = calendar.render();
 
       var modalParams = {
+        hostEl: $hostEl,
         targetEl: $inputEl,
         scrollToEl: calendar.params.scrollToInput ? $inputEl : undefined,
         content: modalContent,
@@ -35481,7 +35660,8 @@
       if (ac.params.view) {
         view = ac.params.view;
       } else if ($openerEl || $inputEl) {
-        view = app.views.get($openerEl || $inputEl);
+        var $el = $openerEl || $inputEl;
+        view = $el.parents('.view').length && $el.parents('.view')[0].f7View;
       }
       if (!view) { view = app.views.main; }
 
@@ -36662,6 +36842,13 @@
           var text = $(el).attr('data-tooltip');
           if (!text) { return; }
           app.tooltip.create({ targetEl: el, text: text });
+        },
+        update: function update(vnode) {
+          var el = vnode.elm;
+          if (!el.f7Tooltip) { return; }
+          if (vnode && vnode.data && vnode.data.attrs && vnode.data.attrs['data-tooltip']) {
+            el.f7Tooltip.setText(vnode.data.attrs['data-tooltip']);
+          }
         },
         destroy: function destroy(vnode) {
           var el = vnode.elm;
@@ -38191,6 +38378,12 @@
 
       self.params = Utils.extend({}, app.params.colorPicker, params);
 
+      var $hostEl;
+      if (self.params.hostEl) {
+        $hostEl = $(self.params.hostEl);
+        if ($hostEl.length === 0) { return self; }
+      }
+
       var $containerEl;
       if (self.params.containerEl) {
         $containerEl = $(self.params.containerEl);
@@ -38218,6 +38411,8 @@
 
       Utils.extend(self, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $containerEl: $containerEl,
         containerEl: $containerEl && $containerEl[0],
         inline: $containerEl && $containerEl.length > 0,
@@ -38818,6 +39013,7 @@
       var app = self.app;
       var opened = self.opened;
       var inline = self.inline;
+      var $hostEl = self.$hostEl;
       var $inputEl = self.$inputEl;
       var $targetEl = self.$targetEl;
       var params = self.params;
@@ -38870,6 +39066,7 @@
           if (modalType === 'popup') { backdrop = true; }
         }
         var modalParams = {
+          hostEl: $hostEl,
           targetEl: ($targetEl || $inputEl),
           scrollToEl: params.scrollToInput ? ($targetEl || $inputEl) : undefined,
           content: colorPickerContent,

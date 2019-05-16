@@ -17,7 +17,7 @@ export default {
     href: [Boolean, String],
     target: String,
     tooltip: String
-  }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
+  }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
 
   render() {
     const _h = this.$createElement;

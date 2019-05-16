@@ -23,6 +23,12 @@ class ColorPicker extends Framework7Class {
 
     self.params = Utils.extend({}, app.params.colorPicker, params);
 
+    let $hostEl;
+    if (self.params.hostEl) {
+      $hostEl = $(self.params.hostEl);
+      if ($hostEl.length === 0) return self;
+    }
+
     let $containerEl;
     if (self.params.containerEl) {
       $containerEl = $(self.params.containerEl);
@@ -50,6 +56,8 @@ class ColorPicker extends Framework7Class {
 
     Utils.extend(self, {
       app,
+      $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $containerEl,
       containerEl: $containerEl && $containerEl[0],
       inline: $containerEl && $containerEl.length > 0,
@@ -662,7 +670,7 @@ class ColorPicker extends Framework7Class {
 
   open() {
     const self = this;
-    const { app, opened, inline, $inputEl, $targetEl, params } = self;
+    const { app, opened, inline, $hostEl, $inputEl, $targetEl, params } = self;
     if (opened) return;
 
     if (inline) {
@@ -712,6 +720,7 @@ class ColorPicker extends Framework7Class {
         if (modalType === 'popup') backdrop = true;
       }
       const modalParams = {
+        hostEl: $hostEl,
         targetEl: ($targetEl || $inputEl),
         scrollToEl: params.scrollToInput ? ($targetEl || $inputEl) : undefined,
         content: colorPickerContent,

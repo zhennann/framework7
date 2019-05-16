@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: July 1, 2019
+ * Released on: July 20, 2019
  */
 
 (function (global, factory) {
@@ -2879,7 +2879,73 @@
         '--f7-theme-color-tint': tint,
       };
     },
+    // by zhennann
+    getViewHost: function getViewHost(app, $el) {
+      var $hostEl = $el.parents('.views');
+      if ($hostEl.length === 0) { $hostEl = $el.parents('.view'); }
+      if ($hostEl.length === 0) { $hostEl = app.root; }
+      return $hostEl;
+    },
   };
+
+  var Support = (function Support() {
+    var testDiv = doc.createElement('div');
+
+    return {
+      touch: (function checkTouch() {
+        return !!((win.navigator.maxTouchPoints > 0) || ('ontouchstart' in win) || (win.DocumentTouch && doc instanceof win.DocumentTouch));
+      }()),
+
+      pointerEvents: !!(win.navigator.pointerEnabled || win.PointerEvent || ('maxTouchPoints' in win.navigator && win.navigator.maxTouchPoints > 0)),
+      prefixedPointerEvents: !!win.navigator.msPointerEnabled,
+
+      transition: (function checkTransition() {
+        var style = testDiv.style;
+        return ('transition' in style || 'webkitTransition' in style || 'MozTransition' in style);
+      }()),
+      transforms3d: (win.Modernizr && win.Modernizr.csstransforms3d === true) || (function checkTransforms3d() {
+        var style = testDiv.style;
+        return ('webkitPerspective' in style || 'MozPerspective' in style || 'OPerspective' in style || 'MsPerspective' in style || 'perspective' in style);
+      }()),
+
+      flexbox: (function checkFlexbox() {
+        var div = doc.createElement('div').style;
+        var styles = ('alignItems webkitAlignItems webkitBoxAlign msFlexAlign mozBoxAlign webkitFlexDirection msFlexDirection mozBoxDirection mozBoxOrient webkitBoxDirection webkitBoxOrient').split(' ');
+        for (var i = 0; i < styles.length; i += 1) {
+          if (styles[i] in div) { return true; }
+        }
+        return false;
+      }()),
+
+      observer: (function checkObserver() {
+        return ('MutationObserver' in win || 'WebkitMutationObserver' in win);
+      }()),
+
+      passiveListener: (function checkPassiveListener() {
+        var supportsPassive = false;
+        try {
+          var opts = Object.defineProperty({}, 'passive', {
+            // eslint-disable-next-line
+            get: function get() {
+              supportsPassive = true;
+            },
+          });
+          win.addEventListener('testPassiveListener', null, opts);
+        } catch (e) {
+          // No support
+        }
+        return supportsPassive;
+      }()),
+
+      gestures: (function checkGestures() {
+        return 'ongesturestart' in win;
+      }()),
+
+      intersectionObserver: (function checkObserver() {
+        return ('IntersectionObserver' in win);
+      }()),
+    };
+  }());
 
   var Device = (function Device() {
     var platform = win.navigator.platform;
@@ -2920,9 +2986,24 @@
     var ie = ua.indexOf('MSIE ') >= 0 || ua.indexOf('Trident/') >= 0;
     var edge = ua.indexOf('Edge/') >= 0;
     var firefox = ua.indexOf('Gecko/') >= 0 && ua.indexOf('Firefox/') >= 0;
-    var macos = platform === 'MacIntel';
     var windows = platform === 'Win32';
     var electron = ua.toLowerCase().indexOf('electron') >= 0;
+    var macos = platform === 'MacIntel';
+
+    // iPadOs 13 fix
+    if (!ipad
+      && macos
+      && Support.touch
+      && (
+        (screenWidth === 1024 && screenHeight === 1366) // Pro 12.9
+        || (screenWidth === 834 && screenHeight === 1194) // Pro 11
+        || (screenWidth === 834 && screenHeight === 1112) // Pro 10.5
+        || (screenWidth === 768 && screenHeight === 1024) // other
+      )
+    ) {
+      ipad = ua.match(/(Version)\/([\d.]+)/);
+      macos = false;
+    }
 
     device.ie = ie;
     device.edge = edge;
@@ -3809,65 +3890,6 @@
       },
     },
   };
-
-  var Support = (function Support() {
-    var testDiv = doc.createElement('div');
-
-    return {
-      touch: (function checkTouch() {
-        return !!((win.navigator.maxTouchPoints > 0) || ('ontouchstart' in win) || (win.DocumentTouch && doc instanceof win.DocumentTouch));
-      }()),
-
-      pointerEvents: !!(win.navigator.pointerEnabled || win.PointerEvent || ('maxTouchPoints' in win.navigator && win.navigator.maxTouchPoints > 0)),
-      prefixedPointerEvents: !!win.navigator.msPointerEnabled,
-
-      transition: (function checkTransition() {
-        var style = testDiv.style;
-        return ('transition' in style || 'webkitTransition' in style || 'MozTransition' in style);
-      }()),
-      transforms3d: (win.Modernizr && win.Modernizr.csstransforms3d === true) || (function checkTransforms3d() {
-        var style = testDiv.style;
-        return ('webkitPerspective' in style || 'MozPerspective' in style || 'OPerspective' in style || 'MsPerspective' in style || 'perspective' in style);
-      }()),
-
-      flexbox: (function checkFlexbox() {
-        var div = doc.createElement('div').style;
-        var styles = ('alignItems webkitAlignItems webkitBoxAlign msFlexAlign mozBoxAlign webkitFlexDirection msFlexDirection mozBoxDirection mozBoxOrient webkitBoxDirection webkitBoxOrient').split(' ');
-        for (var i = 0; i < styles.length; i += 1) {
-          if (styles[i] in div) { return true; }
-        }
-        return false;
-      }()),
-
-      observer: (function checkObserver() {
-        return ('MutationObserver' in win || 'WebkitMutationObserver' in win);
-      }()),
-
-      passiveListener: (function checkPassiveListener() {
-        var supportsPassive = false;
-        try {
-          var opts = Object.defineProperty({}, 'passive', {
-            // eslint-disable-next-line
-            get: function get() {
-              supportsPassive = true;
-            },
-          });
-          win.addEventListener('testPassiveListener', null, opts);
-        } catch (e) {
-          // No support
-        }
-        return supportsPassive;
-      }()),
-
-      gestures: (function checkGestures() {
-        return 'ongesturestart' in win;
-      }()),
-
-      intersectionObserver: (function checkObserver() {
-        return ('IntersectionObserver' in win);
-      }()),
-    };
-  }());
 
   var SupportModule = {
     name: 'support',
@@ -11804,7 +11826,7 @@
     if ($viewEl.length > 1) {
       if ($viewEl.hasClass('tab')) {
         // Tabs
-        $viewEl = $viewEl.children('.view.tab-active');
+        $viewEl = $viewsEl.children('.view.tab-active');
       }
     }
     if ($popoverView.length > 0 && $popoverView[0].f7View) { return $popoverView[0].f7View; }
@@ -13024,8 +13046,22 @@
 
       var $modalParentEl = $el.parent();
       var wasInDom = $el.parents(doc).length > 0;
-      if (app.params.modal.moveToRoot && !$modalParentEl.is(app.root)) {
-        app.root.append($el);
+      var $hostEl;
+      if (app.params.modal.moveToRoot) {
+        $hostEl = app.root;
+      } else {
+        $hostEl = $(modal.params.hostEl);
+        if ($hostEl.length === 0) {
+          if (wasInDom) {
+            $hostEl = Utils.getViewHost(app, $el);
+          } else {
+            var $targetEl = $(modal.params.targetEl);
+            $hostEl = Utils.getViewHost(app, $targetEl);
+          }
+        }
+      }
+      if ($hostEl && !$modalParentEl.is($hostEl)) {
+        $hostEl.append($el);
         modal.once((type + "Closed"), function () {
           if (wasInDom) {
             $modalParentEl.append($el);
@@ -13034,6 +13070,20 @@
           }
         });
       }
+
+      // Backdrop
+      if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
+        var className = $backdropEl.prop('className');
+        var backdropEl = $hostEl.children(("." + className));
+        if (backdropEl.length === 0) {
+          backdropEl = $(("<div class=\"" + className + "\"></div>"));
+          $hostEl.append(backdropEl);
+        }
+        $backdropEl = backdropEl;
+        modal.$backdropEl = backdropEl;
+        modal.backdropEl = backdropEl[0];
+      }
+
       // Show Modal
       $el.show();
 

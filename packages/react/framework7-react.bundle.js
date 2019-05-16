@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: July 1, 2019
+ * Released on: July 20, 2019
  */
 
 (function (global, factory) {
@@ -2252,7 +2252,7 @@
     active: Boolean,
     disabled: Boolean,
     tooltip: String
-  }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
+  }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
 
   F7Button.displayName = 'f7-button';
 
@@ -4632,7 +4632,7 @@
     tooltip: String,
     smartSelect: Boolean,
     smartSelectParams: Object
-  }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
+  }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
 
   F7Link.displayName = 'f7-link';
 
@@ -4800,7 +4800,7 @@
     href: [Boolean, String],
     target: String,
     tooltip: String
-  }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
+  }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
 
   F7ListButton.displayName = 'f7-list-button';
 
@@ -6137,7 +6137,7 @@
           var linkAttrs = Object.assign({
             href: link === true ? '' : link || href,
             target: target
-          }, Mixins.linkRouterAttrs(props), Mixins.linkActionsAttrs(props));
+          }, Mixins.linkRouterAttrs(props), {}, Mixins.linkActionsAttrs(props));
           var linkClasses = Utils.classNames({
             'item-link': true,
             'no-fastclick': noFastclick || noFastClick,
@@ -6457,7 +6457,7 @@
     required: Boolean,
     disabled: Boolean,
     virtualListIndex: Number
-  }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
+  }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
 
   F7ListItem.displayName = 'f7-list-item';
 
@@ -7067,7 +7067,7 @@
     href: String,
     target: String,
     divider: Boolean
-  }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
+  }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
 
   F7MenuDropdownItem.displayName = 'f7-menu-dropdown-item';
 
@@ -7307,7 +7307,7 @@
     link: Boolean,
     target: String,
     dropdown: Boolean
-  }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
+  }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
 
   F7MenuItem.displayName = 'f7-menu-item';
 
@@ -10106,18 +10106,21 @@
 
         self.f7Panel = self.$f7.panel.create({
           el: el,
-          resizable: resizable,
-          on: {
-            open: self.onOpen,
-            opened: self.onOpened,
-            close: self.onClose,
-            closed: self.onClosed,
-            backdropClick: self.onBackdropClick,
-            swipe: self.onPanelSwipe,
-            swipeOpen: self.onPanelSwipeOpen,
-            breakpoint: self.onBreakpoint,
-            resize: self.onResize
-          }
+          resizable: resizable
+        });
+        var events = {
+          open: self.onOpen,
+          opened: self.onOpened,
+          close: self.onClose,
+          closed: self.onClosed,
+          backdropClick: self.onBackdropClick,
+          swipe: self.onPanelSwipe,
+          swipeOpen: self.onPanelSwipeOpen,
+          breakpoint: self.onBreakpoint,
+          resize: self.onResize
+        };
+        Object.keys(events).forEach(function (ev) {
+          self.f7Panel.on(ev, events[ev]);
         });
       });
 
@@ -11441,7 +11444,7 @@
       this.__reactRefs = {};
 
       (function () {
-        Utils.bindMethods(this$1, ['onOpen', 'onOpened', 'onClose', 'onClosed', 'onStepOpen', 'onStepClose']);
+        Utils.bindMethods(this$1, ['onOpen', 'onOpened', 'onClose', 'onClosed', 'onStepOpen', 'onStepClose', 'onStepProgress']);
       })();
     }
 
@@ -11450,6 +11453,10 @@
     F7Sheet.prototype.constructor = F7Sheet;
 
     var prototypeAccessors = { slots: { configurable: true },refs: { configurable: true } };
+
+    F7Sheet.prototype.onStepProgress = function onStepProgress (event) {
+      this.dispatchEvent('sheet:stepprogress sheetStepProgress', event.detail);
+    };
 
     F7Sheet.prototype.onStepOpen = function onStepOpen (event) {
       this.dispatchEvent('sheet:stepopen sheetStepOpen', event);
@@ -11551,6 +11558,7 @@
       el.removeEventListener('sheet:closed', self.onClosed);
       el.removeEventListener('sheet:stepopen', self.onStepOpen);
       el.removeEventListener('sheet:stepclose', self.onStepClose);
+      el.removeEventListener('sheet:stepprogress', self.onStepProgress);
     };
 
     F7Sheet.prototype.componentDidMount = function componentDidMount () {
@@ -11563,6 +11571,7 @@
       el.addEventListener('sheet:closed', self.onClosed);
       el.addEventListener('sheet:stepopen', self.onStepOpen);
       el.addEventListener('sheet:stepclose', self.onStepClose);
+      el.addEventListener('sheet:stepprogress', self.onStepProgress);
       var props = self.props;
       var opened = props.opened;
       var backdrop = props.backdrop;
@@ -13232,7 +13241,7 @@
       type: [Boolean, String],
       default: undefined
     }
-  }, Mixins.colorProps, Mixins.linkActionsProps, Mixins.linkRouterProps, Mixins.linkIconProps));
+  }, Mixins.colorProps, {}, Mixins.linkActionsProps, {}, Mixins.linkRouterProps, {}, Mixins.linkIconProps));
 
   F7TreeviewItem.displayName = 'f7-treeview-item';
 
@@ -13731,7 +13740,7 @@
             tabRouter = tabData;
           }
         });
-        var hasComponent = !!tabRouter.tabContent;
+        var hasComponent = tabRouter && tabRouter.component;
         if (!tabRouter || !hasComponent) {
           tabEl.innerHTML = ''; // eslint-disable-line
           return;
@@ -13806,7 +13815,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: July 1, 2019
+   * Released on: July 20, 2019
    */
 
   var Plugin = {
@@ -13920,6 +13929,13 @@
       Object.defineProperty(Extend.prototype, '$f7', {
         get: function get() {
           return f7.instance;
+        },
+      });
+
+      // by zhennann
+      Object.defineProperty(Extend.prototype, '$vuef7', {
+        get: function get() {
+          return f7;
         },
       });
 

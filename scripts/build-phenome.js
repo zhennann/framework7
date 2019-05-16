@@ -4,7 +4,7 @@
 /* eslint no-param-reassign: ["error", { "props": false }] */
 const path = require('path');
 const { transformSync } = require('@babel/core');
-const phenome = require('phenome');
+const phenome = require('@zhennann/phenome'); // by zhennann
 const getOutput = require('./get-output');
 const fs = require('./utils/fs-extra');
 
