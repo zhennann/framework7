@@ -19,6 +19,13 @@ class Actions extends Modal {
 
     actions.params = extendedParams;
 
+    // Host El
+    let $hostEl;
+    if (actions.params.hostEl) {
+      $hostEl = $(actions.params.hostEl);
+      if ($hostEl.length === 0) return actions;
+    }
+
     // Buttons
     let groups;
     if (actions.params.buttons) {
@@ -98,6 +105,7 @@ class Actions extends Modal {
       }
       if (convertToPopover && actions.popoverHtml) {
         popover = app.popover.create({
+          hostEl: $hostEl && $hostEl[0],
           content: actions.popoverHtml,
           backdrop: actions.params.backdrop,
           targetEl,
@@ -151,6 +159,8 @@ class Actions extends Modal {
 
     Utils.extend(actions, {
       app,
+      $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $el,
       el: $el ? $el[0] : undefined,
       $backdropEl,

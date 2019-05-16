@@ -18,6 +18,7 @@ class Dialog extends Modal {
     }, params);
     if (typeof extendedParams.closeByBackdropClick === 'undefined') {
       extendedParams.closeByBackdropClick = app.params.dialog.closeByBackdropClick;
+      extendedParams.backdrop = app.params.dialog.backdrop;
     }
     if (typeof extendedParams.backdrop === 'undefined') {
       extendedParams.backdrop = app.params.dialog.backdrop;
@@ -31,6 +32,13 @@ class Dialog extends Modal {
     const { title, text, content, buttons, verticalButtons, cssClass, backdrop } = extendedParams;
 
     dialog.params = extendedParams;
+
+    // Host El
+    let $hostEl;
+    if (dialog.params.hostEl) {
+      $hostEl = $(dialog.params.hostEl);
+      if ($hostEl.length === 0) return dialog;
+    }
 
     // Find Element
     let $el;
@@ -75,6 +83,7 @@ class Dialog extends Modal {
       return dialog.destroy();
     }
 
+    // Backdrop
     let $backdropEl;
     if (backdrop) {
       $backdropEl = app.root.children('.dialog-backdrop');
@@ -138,6 +147,8 @@ class Dialog extends Modal {
     }
     Utils.extend(dialog, {
       app,
+      $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $el,
       el: $el[0],
       $backdropEl,

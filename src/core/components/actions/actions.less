@@ -25,15 +25,26 @@
     z-index: 13500 - 1;
     transform: translate3d(0, 100%, 0);
   }
-  @media (min-width: 496px) {
-    width: 480px;
-    left: 50%;
-    margin-left: -240px;
-  }
+  // @media (min-width: 496px) {
+  //   width: 480px;
+  //   left: 50%;
+  //   margin-left: -240px;
+  // }
   @media (orientation: landscape) {
     --f7-actions-button-height: var(--f7-actions-button-height-landscape);
   }
 }
+
+/* zhennann */
+.eb-layout-view-size-middle,
+.eb-layout-view-size-large {
+  .actions-modal {
+    width: 480px;
+    left: 50%;
+    margin-left: -240px;
+  }
+}
+
 .actions-group {
   overflow: hidden;
   position: relative;

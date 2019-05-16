@@ -440,5 +440,12 @@ const Utils = {
       '--f7-theme-color-tint': tint,
     };
   },
+  // by zhennann
+  getViewHost(app, $el) {
+    let $hostEl = $el.parents('.views');
+    if ($hostEl.length === 0) $hostEl = $el.parents('.view');
+    if ($hostEl.length === 0) $hostEl = app.root;
+    return $hostEl;
+  },
 };
 export default Utils;

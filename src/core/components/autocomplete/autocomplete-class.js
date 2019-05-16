@@ -35,6 +35,15 @@ class Autocomplete extends Framework7Class {
       if ($inputEl.length) $inputEl[0].f7Autocomplete = ac;
     }
 
+    let view;
+    if (ac.params.view) {
+      view = ac.params.view;
+    } else if ($openerEl || $inputEl) {
+      const $el = $openerEl || $inputEl;
+      view = $el.parents('.view').length && $el.parents('.view')[0].f7View;
+    }
+    if (!view) view = app.views.main;
+
     const id = Utils.id();
 
     let url = params.url;
