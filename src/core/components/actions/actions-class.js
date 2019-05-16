@@ -19,6 +19,13 @@ class Actions extends Modal {
 
     actions.params = extendedParams;
 
+    // Host El
+    let $hostEl;
+    if (actions.params.hostEl) {
+      $hostEl = $(actions.params.hostEl);
+      if ($hostEl.length === 0) return actions;
+    }
+
     // Buttons
     let groups;
     if (actions.params.buttons) {
@@ -87,6 +94,7 @@ class Actions extends Modal {
       const { targetEl, targetX, targetY, targetWidth, targetHeight } = actions.params;
       if (actions.params.convertToPopover && (targetEl || (targetX !== undefined && targetY !== undefined))) {
         // Popover
+        /*
         if (
           actions.params.forceToPopover
           || (app.device.ios && app.device.ipad)
@@ -95,9 +103,18 @@ class Actions extends Modal {
         ) {
           convertToPopover = true;
         }
+        */
+        // by zhennann
+        const $view = $(targetEl).parents('.view');
+        const viewSize = $view.data('size');
+        const isPopover = viewSize !== 'small';
+        if (actions.params.forceToPopover || isPopover) {
+          convertToPopover = true;
+        }
       }
       if (convertToPopover && actions.popoverHtml) {
         popover = app.popover.create({
+          hostEl: $hostEl && $hostEl[0],
           content: actions.popoverHtml,
           backdrop: actions.params.backdrop,
           targetEl,
@@ -181,6 +198,8 @@ class Actions extends Modal {
 
     Utils.extend(actions, {
       app,
+      $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $el,
       el: $el ? $el[0] : undefined,
       $backdropEl,

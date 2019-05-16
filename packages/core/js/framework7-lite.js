@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: November 9, 2020
+ * Released on: December 15, 2020
  */
 
 (function (global, factory) {
@@ -672,147 +672,90 @@
   Template7.partials = Template7Class.partials;
 
   /**
-   * SSR Window 2.0.0
+   * SSR Window 1.0.1
    * Better handling for window object in SSR environment
    * https://github.com/nolimits4web/ssr-window
    *
-   * Copyright 2020, Vladimir Kharlampidi
+   * Copyright 2018, Vladimir Kharlampidi
    *
    * Licensed under MIT
    *
-   * Released on: May 12, 2020
+   * Released on: July 18, 2018
    */
-  /* eslint-disable no-param-reassign */
-  function isObject(obj) {
-      return (obj !== null &&
-          typeof obj === 'object' &&
-          'constructor' in obj &&
-          obj.constructor === Object);
-  }
-  function extend(target, src) {
-      if (target === void 0) { target = {}; }
-      if (src === void 0) { src = {}; }
-      Object.keys(src).forEach(function (key) {
-          if (typeof target[key] === 'undefined')
-              { target[key] = src[key]; }
-          else if (isObject(src[key]) &&
-              isObject(target[key]) &&
-              Object.keys(src[key]).length > 0) {
-              extend(target[key], src[key]);
-          }
-      });
-  }
-
-  var doc = typeof document !== 'undefined' ? document : {};
-  var ssrDocument = {
-      body: {},
-      addEventListener: function () { },
-      removeEventListener: function () { },
-      activeElement: {
-          blur: function () { },
-          nodeName: '',
-      },
-      querySelector: function () {
-          return null;
-      },
-      querySelectorAll: function () {
+  var doc = (typeof document === 'undefined') ? {
+    body: {},
+    addEventListener: function addEventListener() {},
+    removeEventListener: function removeEventListener() {},
+    activeElement: {
+      blur: function blur() {},
+      nodeName: '',
+    },
+    querySelector: function querySelector() {
+      return null;
+    },
+    querySelectorAll: function querySelectorAll() {
+      return [];
+    },
+    getElementById: function getElementById() {
+      return null;
+    },
+    createEvent: function createEvent() {
+      return {
+        initEvent: function initEvent() {},
+      };
+    },
+    createElement: function createElement() {
+      return {
+        children: [],
+        childNodes: [],
+        style: {},
+        setAttribute: function setAttribute() {},
+        getElementsByTagName: function getElementsByTagName() {
           return [];
-      },
-      getElementById: function () {
-          return null;
-      },
-      createEvent: function () {
-          return {
-              initEvent: function () { },
-          };
-      },
-      createElement: function () {
-          return {
-              children: [],
-              childNodes: [],
-              style: {},
-              setAttribute: function () { },
-              getElementsByTagName: function () {
-                  return [];
-              },
-          };
-      },
-      createElementNS: function () {
-          return {};
-      },
-      importNode: function () {
-          return null;
-      },
-      location: {
-          hash: '',
-          host: '',
-          hostname: '',
-          href: '',
-          origin: '',
-          pathname: '',
-          protocol: '',
-          search: '',
-      },
-  };
-  extend(doc, ssrDocument);
+        },
+      };
+    },
+    location: { hash: '' },
+  } : document; // eslint-disable-line
 
-  var win = typeof window !== 'undefined' ? window : {};
-  var ssrWindow = {
-      document: ssrDocument,
-      navigator: {
-          userAgent: '',
-      },
-      location: {
-          hash: '',
-          host: '',
-          hostname: '',
-          href: '',
-          origin: '',
-          pathname: '',
-          protocol: '',
-          search: '',
-      },
-      history: {
-          replaceState: function () { },
-          pushState: function () { },
-          go: function () { },
-          back: function () { },
-      },
-      CustomEvent: function CustomEvent() {
-          return this;
-      },
-      addEventListener: function () { },
-      removeEventListener: function () { },
-      getComputedStyle: function () {
-          return {
-              getPropertyValue: function () {
-                  return '';
-              },
-          };
-      },
-      Image: function () { },
-      Date: function () { },
-      screen: {},
-      setTimeout: function () { },
-      clearTimeout: function () { },
-      matchMedia: function () {
-          return {};
-      },
-  };
-  extend(win, ssrWindow);
+  var win = (typeof window === 'undefined') ? {
+    document: doc,
+    navigator: {
+      userAgent: '',
+    },
+    location: {},
+    history: {},
+    CustomEvent: function CustomEvent() {
+      return this;
+    },
+    addEventListener: function addEventListener() {},
+    removeEventListener: function removeEventListener() {},
+    getComputedStyle: function getComputedStyle() {
+      return {
+        getPropertyValue: function getPropertyValue() {
+          return '';
+        },
+      };
+    },
+    Image: function Image() {},
+    Date: function Date() {},
+    screen: {},
+    setTimeout: function setTimeout() {},
+    clearTimeout: function clearTimeout() {},
+  } : window; // eslint-disable-line
 
   /**
-   * Dom7 2.1.5
+   * Dom7 2.1.3
    * Minimalistic JavaScript library for DOM manipulation, with a jQuery-compatible API
    * http://framework7.io/docs/dom.html
    *
-   * Copyright 2020, Vladimir Kharlampidi
+   * Copyright 2019, Vladimir Kharlampidi
    * The iDangero.us
    * http://www.idangero.us/
    *
    * Licensed under MIT
    *
-   * Released on: May 15, 2020
+   * Released on: February 11, 2019
    */
 
   var Dom7 = function Dom7(arr) {
@@ -2822,6 +2765,13 @@
         '--f7-theme-color-shade': shade,
         '--f7-theme-color-tint': tint,
       };
+    },
+    // by zhennann
+    getViewHost: function getViewHost(app, $el) {
+      var $hostEl = $el.parents('.views');
+      if ($hostEl.length === 0) { $hostEl = $el.parents('.view'); }
+      if ($hostEl.length === 0) { $hostEl = app.root; }
+      return $hostEl;
     },
   };
 
@@ -5235,6 +5185,8 @@
       if (!state) { state = {}; }
 
       app.views.forEach(function (view) {
+        // by zhennann
+        if (!view.router || !view.params) { return; }
         var router = view.router;
         var viewState = state[view.id];
         if (!viewState && view.params.pushState) {
@@ -9300,7 +9252,13 @@
         console.warn('Framework7: wrong or not complete pushState configuration, trying to guess pushStateRoot');
         pushStateRoot = doc.location.pathname.split('index.html')[0];
       }
-      if (!pushState || !pushStateOnLoad) {
+
+      // by zhennann
+      if (app.params.router.initEmpty) {
+        initUrl = app.params.router.initEmpty;
+        router.history = [];
+        router.saveHistory();
+      } else if (!pushState || !pushStateOnLoad) {
         if (!initUrl) {
           initUrl = documentUrl;
         }
@@ -9337,6 +9295,7 @@
         }
         router.saveHistory();
       }
+
       var currentRoute;
       if (router.history.length > 1) {
         // Will load page
@@ -9897,6 +9856,9 @@
         });
       });
 
+      // by zhennann
+      if (isLink && $clickedLinkEl.is('.eb-external')) { return; }
+
       // Load Page
       var clickedLinkData = {};
       if (isLink) {
@@ -10337,6 +10299,7 @@
         });
       },
       'modalOpen panelOpen': function onOpen(instance) {
+        if (!instance || !instance.$el) { return; }
         var app = this;
         instance.$el.find('.view-init').each(function (index, viewEl) {
           if (viewEl.f7View) { return; }
@@ -11075,6 +11038,7 @@
         }
       },
       'panelOpen panelSwipeOpen modalOpen': function onPanelModalOpen(instance) {
+        if (!instance || !instance.$el) { return; }
         var app = this;
         instance.$el.find('.navbar:not(.navbar-previous):not(.stacked)').each(function (index, navbarEl) {
           app.navbar.size(navbarEl);
@@ -11565,8 +11529,22 @@
 
       var $modalParentEl = $el.parent();
       var wasInDom = $el.parents(doc).length > 0;
-      if (app.params.modal.moveToRoot && !$modalParentEl.is(app.root)) {
-        app.root.append($el);
+      var $hostEl;
+      if (app.params.modal.moveToRoot) {
+        $hostEl = app.root;
+      } else {
+        $hostEl = $(modal.params.hostEl);
+        if ($hostEl.length === 0) {
+          if (wasInDom) {
+            $hostEl = Utils.getViewHost(app, $el);
+          } else {
+            var $targetEl = $(modal.params.targetEl);
+            $hostEl = Utils.getViewHost(app, $targetEl);
+          }
+        }
+      }
+      if ($hostEl && !$modalParentEl.is($hostEl)) {
+        $hostEl.append($el);
         modal.once((type + "Closed"), function () {
           if (wasInDom) {
             $modalParentEl.append($el);
@@ -11575,6 +11553,21 @@
           }
         });
       }
+
+      // Backdrop
+      if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
+        var className = $backdropEl.prop('className') || '';
+        className = className.split(' ').filter(function (item) { return item.indexOf('-backdrop') > -1; })[0];
+        var backdropEl = $hostEl.children(("." + className));
+        if (backdropEl.length === 0) {
+          backdropEl = $(("<div class=\"" + className + "\"></div>"));
+          $hostEl.append(backdropEl);
+        }
+        $backdropEl = backdropEl;
+        modal.$backdropEl = backdropEl;
+        modal.backdropEl = backdropEl[0];
+      }
+
       // Show Modal
       $el.show();
 
@@ -11701,6 +11694,13 @@
     Modal.prototype.destroy = function destroy () {
       var modal = this;
       if (modal.destroyed) { return; }
+
+      // by zhennann
+      if (modal.$el && modal.$el.hasClass('modal-out')) {
+        // force closed
+        modal.onClosed();
+      }
+
       modal.emit(("local::beforeDestroy modalBeforeDestroy " + (modal.type) + "BeforeDestroy"), modal);
       if (modal.$el) {
         modal.$el.trigger(("modal:beforedestroy " + (modal.type.toLowerCase()) + ":beforedestroy"));
@@ -11824,7 +11824,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: November 9, 2020
+   * Released on: December 15, 2020
    */
 
   // Install Core Modules & Components

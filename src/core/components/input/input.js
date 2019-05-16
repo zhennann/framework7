@@ -74,12 +74,10 @@ const Input = {
     }
     unsetReadonly();
     const validity = $inputEl[0].validity;
-    const validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || '';
-    if (!validity) {
-      setReadonly();
-      return true;
-    }
-    if (!validity.valid) {
+    // const validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || '';
+    const validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || $inputEl[0].ebCustomError || '';
+    if (!validity) return true;
+    if (!validity.valid || $inputEl[0].ebCustomError) {
       let $errorEl = $inputEl.nextAll('.item-input-error-message, .input-error-message');
       if (validationMessage) {
         if ($errorEl.length === 0) {

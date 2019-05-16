@@ -40,6 +40,8 @@ const History = {
     if (!state) state = {};
 
     app.views.forEach((view) => {
+      // by zhennann
+      if (!view.router || !view.params) return;
       const router = view.router;
       let viewState = state[view.id];
       if (!viewState && view.params.pushState) {

@@ -23,6 +23,12 @@ class ColorPicker extends Framework7Class {
 
     self.params = Utils.extend({}, app.params.colorPicker, params);
 
+    let $hostEl;
+    if (self.params.hostEl) {
+      $hostEl = $(self.params.hostEl);
+      if ($hostEl.length === 0) return self;
+    }
+
     let $containerEl;
     if (self.params.containerEl) {
       $containerEl = $(self.params.containerEl);
@@ -41,6 +47,8 @@ class ColorPicker extends Framework7Class {
 
     Utils.extend(self, {
       app,
+      $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $containerEl,
       containerEl: $containerEl && $containerEl[0],
       inline: $containerEl && $containerEl.length > 0,
@@ -186,19 +194,25 @@ class ColorPicker extends Framework7Class {
 
   getModalType() {
     const self = this;
-    const { app, modal, params } = self;
+    const { modal, params, $inputEl } = self;
     const { openIn, openInPhone } = params;
     if (modal && modal.type) return modal.type;
     if (openIn !== 'auto') return openIn;
     if (self.inline) return null;
-    if (app.device.ios) {
-      return app.device.ipad ? 'popover' : openInPhone;
-    }
-    if (app.width >= 768 || (app.device.desktop && app.theme === 'aurora')) {
-      return 'popover';
-    }
 
-    return openInPhone;
+    // by zhennann
+    const $view = $inputEl.parents('.view');
+    const viewSize = $view.data('size');
+    return viewSize !== 'small' ? 'popover' : openInPhone;
+
+    // if (app.device.ios) {
+    //   return app.device.ipad ? 'popover' : openInPhone;
+    // }
+    // if (app.width >= 768 || (app.device.desktop && app.theme === 'aurora')) {
+    //   return 'popover';
+    // }
+
+    // return openInPhone;
   }
 
   formatValue() {
@@ -686,7 +700,7 @@ class ColorPicker extends Framework7Class {
 
   open() {
     const self = this;
-    const { app, opened, inline, $inputEl, $targetEl, params } = self;
+    const { app, opened, inline, $hostEl, $inputEl, $targetEl, params } = self;
     if (opened) return;
 
     if (inline) {
@@ -736,6 +750,7 @@ class ColorPicker extends Framework7Class {
         if (modalType === 'popup') backdrop = true;
       }
       const modalParams = {
+        hostEl: $hostEl,
         targetEl: ($targetEl || $inputEl),
         scrollToEl: params.scrollToInput ? ($targetEl || $inputEl) : undefined,
         content: colorPickerContent,

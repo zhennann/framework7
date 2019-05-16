@@ -68,7 +68,7 @@ class Modal extends Framework7Class {
     const modal = this;
     const app = modal.app;
     const $el = modal.$el;
-    const $backdropEl = modal.$backdropEl;
+    let $backdropEl = modal.$backdropEl;
     const type = modal.type;
     let animate = true;
     if (typeof animateModal !== 'undefined') animate = animateModal;
@@ -97,8 +97,22 @@ class Modal extends Framework7Class {
 
     const $modalParentEl = $el.parent();
     const wasInDom = $el.parents(document).length > 0;
-    if (app.params.modal.moveToRoot && !$modalParentEl.is(app.root)) {
-      app.root.append($el);
+    let $hostEl;
+    if (app.params.modal.moveToRoot) {
+      $hostEl = app.root;
+    } else {
+      $hostEl = $(modal.params.hostEl);
+      if ($hostEl.length === 0) {
+        if (wasInDom) {
+          $hostEl = Utils.getViewHost(app, $el);
+        } else {
+          const $targetEl = $(modal.params.targetEl);
+          $hostEl = Utils.getViewHost(app, $targetEl);
+        }
+      }
+    }
+    if ($hostEl && !$modalParentEl.is($hostEl)) {
+      $hostEl.append($el);
       modal.once(`${type}Closed`, () => {
         if (wasInDom) {
           $modalParentEl.append($el);
@@ -107,6 +121,21 @@ class Modal extends Framework7Class {
         }
       });
     }
+
+    // Backdrop
+    if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
+      let className = $backdropEl.prop('className') || '';
+      className = className.split(' ').filter(item => item.indexOf('-backdrop') > -1)[0];
+      let backdropEl = $hostEl.children(`.${className}`);
+      if (backdropEl.length === 0) {
+        backdropEl = $(`<div class="${className}"></div>`);
+        $hostEl.append(backdropEl);
+      }
+      $backdropEl = backdropEl;
+      modal.$backdropEl = backdropEl;
+      modal.backdropEl = backdropEl[0];
+    }
+
     // Show Modal
     $el.show();
 
@@ -233,6 +262,13 @@ class Modal extends Framework7Class {
   destroy() {
     const modal = this;
     if (modal.destroyed) return;
+
+    // by zhennann
+    if (modal.$el && modal.$el.hasClass('modal-out')) {
+      // force closed
+      modal.onClosed();
+    }
+
     modal.emit(`local::beforeDestroy modalBeforeDestroy ${modal.type}BeforeDestroy`, modal);
     if (modal.$el) {
       modal.$el.trigger(`modal:beforedestroy ${modal.type.toLowerCase()}:beforedestroy`);

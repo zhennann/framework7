@@ -699,6 +699,7 @@ export default {
       }
     },
     'panelOpen panelSwipeOpen modalOpen': function onPanelModalOpen(instance) {
+      if (!instance || !instance.$el) return;
       const app = this;
       instance.$el.find('.navbar:not(.navbar-previous):not(.stacked)').each((index, navbarEl) => {
         app.navbar.size(navbarEl);

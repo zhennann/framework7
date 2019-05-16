@@ -140,6 +140,7 @@ export default {
       });
     },
     'modalOpen panelOpen': function onOpen(instance) {
+      if (!instance || !instance.$el) return;
       const app = this;
       instance.$el.find('.view-init').each((index, viewEl) => {
         if (viewEl.f7View) return;

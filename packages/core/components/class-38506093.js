@@ -1,1 +1,1 @@
-(undefined(Framework7, typeof Framework7AutoInstallComponent === 'undefined' ? undefined : Framework7AutoInstallComponent))
+(function framework7ComponentLoader(o,d){void 0===d&&(d=!0);document,window,o.$,o.Template7,o.utils,o.device,o.support,o.Class,o.Modal,o.ConstructorMethods,o.ModalMethods;(void 0)(o,void 0===d?void 0:d)}(Framework7, typeof Framework7AutoInstallComponent === 'undefined' ? undefined : Framework7AutoInstallComponent))
