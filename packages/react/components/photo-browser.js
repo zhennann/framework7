@@ -29,6 +29,17 @@ class F7PhotoBrowser extends React.Component {
     return this.f7PhotoBrowser.expositionDisable();
   }
 
+  getView() {
+    const $el = this.$$(this.$el);
+    const view = $el.parents('.view').length && $el.parents('.view')[0].f7View;
+
+    if (!view) {
+      throw Error('Photo Browser requires initialized View');
+    }
+
+    return view;
+  }
+
   render() {
     return null;
   }
@@ -43,6 +54,7 @@ class F7PhotoBrowser extends React.Component {
         if (typeof params[param] === 'undefined' || params[param] === '') delete params[param];
       });
       params = Utils.extend({}, params, {
+        view: self.getView(),
         on: {
           open() {
             self.dispatchEvent('photobrowser:open photoBrowserOpen');

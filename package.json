@@ -1,6 +1,6 @@
 {
-  "name": "framework7-source",
-  "version": "0.0.0",
+  "name": "@zhennann/framework7",
+  "version": "5.5.5",
   "scripts": {
     "build:dev": "cross-env-shell NODE_ENV=development \"gulp build-core && gulp phenome && gulp build-vue && gulp build-react && gulp build-svelte\"",
     "build:prod": "cross-env-shell NODE_ENV=production \"gulp build-core && gulp phenome && gulp build-vue && gulp build-react && gulp build-svelte\"",
@@ -91,7 +91,7 @@
     "husky": "^4.2.5",
     "less": "^3.11.1",
     "opn": "^6.0.0",
-    "phenome": "0.1.9",
+    "@zhennann/phenome": "0.1.9",
     "postcss": "^7.0.27",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",

@@ -133,6 +133,7 @@ export default {
       });
     },
     modalOpen(modal) {
+      if (!modal || !modal.$el) return;
       const app = this;
       modal.$el.find('.view-init').each((index, viewEl) => {
         if (viewEl.f7View) return;

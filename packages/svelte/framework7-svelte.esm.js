@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: April 10, 2020
+ * Released on: April 12, 2020
  */
 
 import AccordionContent from './components/accordion-content.svelte';

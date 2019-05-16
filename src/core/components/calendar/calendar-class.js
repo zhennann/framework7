@@ -9,6 +9,12 @@ class Calendar extends Framework7Class {
 
     calendar.params = Utils.extend({}, app.params.calendar, params);
 
+    let $hostEl;
+    if (calendar.params.hostEl) {
+      $hostEl = $(calendar.params.hostEl);
+      if ($hostEl.length === 0) return calendar;
+    }
+
     let $containerEl;
     if (calendar.params.containerEl) {
       $containerEl = $(calendar.params.containerEl);
@@ -29,6 +35,8 @@ class Calendar extends Framework7Class {
 
     Utils.extend(calendar, {
       app,
+      $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $containerEl,
       containerEl: $containerEl && $containerEl[0],
       inline: $containerEl && $containerEl.length > 0,
@@ -469,21 +477,25 @@ class Calendar extends Framework7Class {
 
   isPopover() {
     const calendar = this;
-    const { app, modal, params } = calendar;
+    const { modal, params, $inputEl } = calendar;
     if (params.openIn === 'sheet') return false;
     if (modal && modal.type !== 'popover') return false;
 
     if (!calendar.inline && calendar.inputEl) {
       if (params.openIn === 'popover') return true;
-      if (app.device.ios) {
-        return !!app.device.ipad;
-      }
-      if (app.width >= 768) {
-        return true;
-      }
-      if (app.device.desktop && app.theme === 'aurora') {
-        return true;
-      }
+      // by zhennann
+      const $view = $inputEl.parents('.view');
+      const viewSize = $view.data('size');
+      return viewSize !== 'small';
+      // if (app.device.ios) {
+      //   return !!app.device.ipad;
+      // }
+      // if (app.width >= 768) {
+      //   return true;
+      // }
+      // if (app.device.desktop && app.theme === 'aurora') {
+      //   return true;
+      // }
     }
     return false;
   }
@@ -1659,7 +1671,7 @@ class Calendar extends Framework7Class {
 
   open() {
     const calendar = this;
-    const { app, opened, inline, $inputEl, params } = calendar;
+    const { app, opened, inline, $hostEl, $inputEl, params } = calendar;
     if (opened) return;
 
     if (inline) {
@@ -1679,6 +1691,7 @@ class Calendar extends Framework7Class {
     const modalContent = calendar.render();
 
     const modalParams = {
+      hostEl: $hostEl,
       targetEl: $inputEl,
       scrollToEl: params.scrollToInput ? $inputEl : undefined,
       content: modalContent,

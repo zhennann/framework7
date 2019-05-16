@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: April 10, 2020
+ * Released on: April 12, 2020
  */
 
 (function (global, factory) {
@@ -2765,6 +2765,13 @@
         '--f7-theme-color-shade': shade,
         '--f7-theme-color-tint': tint,
       };
+    },
+    // by zhennann
+    getViewHost: function getViewHost(app, $el) {
+      var $hostEl = $el.parents('.views');
+      if ($hostEl.length === 0) { $hostEl = $el.parents('.view'); }
+      if ($hostEl.length === 0) { $hostEl = app.root; }
+      return $hostEl;
     },
   };
 
@@ -9186,7 +9193,13 @@
         console.warn('Framework7: wrong or not complete pushState configuration, trying to guess pushStateRoot');
         pushStateRoot = doc.location.pathname.split('index.html')[0];
       }
-      if (!pushState || !pushStateOnLoad) {
+
+      // by zhennann
+      if (app.params.router.initEmpty) {
+        initUrl = app.params.router.initEmpty;
+        router.history = [];
+        router.saveHistory();
+      } else if (!pushState || !pushStateOnLoad) {
         if (!initUrl) {
           initUrl = documentUrl;
         }
@@ -9223,6 +9236,7 @@
         }
         router.saveHistory();
       }
+
       var currentRoute;
       if (router.history.length > 1) {
         // Will load page
@@ -9641,6 +9655,9 @@
           }
         });
       });
+
+      // by zhennann
+      if (isLink && $clickedLinkEl.is('.eb-external')) { return; }
 
       // Load Page
       var clickedLinkData = {};
@@ -11930,6 +11947,7 @@
         });
       },
       modalOpen: function modalOpen(modal) {
+        if (!modal || !modal.$el) { return; }
         var app = this;
         modal.$el.find('.view-init').each(function (index, viewEl) {
           if (viewEl.f7View) { return; }
@@ -12667,6 +12685,7 @@
         }
       },
       'panelOpen panelSwipeOpen modalOpen': function onPanelModalOpen(instance) {
+        if (!instance || !instance.$el) { return; }
         var app = this;
         instance.$el.find('.navbar:not(.navbar-previous):not(.stacked)').each(function (index, navbarEl) {
           app.navbar.size(navbarEl);
@@ -13156,8 +13175,22 @@
 
       var $modalParentEl = $el.parent();
       var wasInDom = $el.parents(doc).length > 0;
-      if (app.params.modal.moveToRoot && !$modalParentEl.is(app.root)) {
-        app.root.append($el);
+      var $hostEl;
+      if (app.params.modal.moveToRoot) {
+        $hostEl = app.root;
+      } else {
+        $hostEl = $(modal.params.hostEl);
+        if ($hostEl.length === 0) {
+          if (wasInDom) {
+            $hostEl = Utils.getViewHost(app, $el);
+          } else {
+            var $targetEl = $(modal.params.targetEl);
+            $hostEl = Utils.getViewHost(app, $targetEl);
+          }
+        }
+      }
+      if ($hostEl && !$modalParentEl.is($hostEl)) {
+        $hostEl.append($el);
         modal.once((type + "Closed"), function () {
           if (wasInDom) {
             $modalParentEl.append($el);
@@ -13166,6 +13199,20 @@
           }
         });
       }
+
+      // Backdrop
+      if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
+        var className = $backdropEl.prop('className');
+        var backdropEl = $hostEl.children(("." + className));
+        if (backdropEl.length === 0) {
+          backdropEl = $(("<div class=\"" + className + "\"></div>"));
+          $hostEl.append(backdropEl);
+        }
+        $backdropEl = backdropEl;
+        modal.$backdropEl = backdropEl;
+        modal.backdropEl = backdropEl[0];
+      }
+
       // Show Modal
       $el.show();
 
@@ -13292,6 +13339,13 @@
     Modal.prototype.destroy = function destroy () {
       var modal = this;
       if (modal.destroyed) { return; }
+
+      // by zhennann
+      if (modal.$el && modal.$el.hasClass('modal-out')) {
+        // force closed
+        modal.onClosed();
+      }
+
       modal.emit(("local::beforeDestroy modalBeforeDestroy " + (modal.type) + "BeforeDestroy"), modal);
       if (modal.$el) {
         modal.$el.trigger(("modal:beforedestroy " + (modal.type.toLowerCase()) + ":beforedestroy"));

@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: April 10, 2020
+ * Released on: April 12, 2020
  */
 
 (function (global, factory) {
@@ -383,6 +383,9 @@
     Object.keys($props).forEach(function (propKey) {
       if (typeof $props[propKey] !== 'undefined') { props[propKey] = $props[propKey]; }
     });
+
+    // by zhennann
+    Object.assign(props, component._data);
 
     var children = [];
     Object.keys(component.$slots).forEach(function (slotName) {
@@ -10009,6 +10012,7 @@
           if (typeof params[param] === 'undefined' || params[param] === '') { delete params[param]; }
         });
         params = Utils.extend({}, params, {
+          view: self.getView(),
           on: {
             open: function open() {
               self.dispatchEvent('photobrowser:open photoBrowserOpen');
@@ -10055,6 +10059,17 @@
 
       expositionDisable: function expositionDisable() {
         return this.f7PhotoBrowser.expositionDisable();
+      },
+
+      getView: function getView() {
+        var $el = this.$$(this.$el);
+        var view = $el.parents('.view').length && $el.parents('.view')[0].f7View;
+
+        if (!view) {
+          throw Error('Photo Browser requires initialized View');
+        }
+
+        return view;
       },
 
       dispatchEvent: function dispatchEvent(events) {
@@ -13075,6 +13090,12 @@
           var pageEl = el.children[el.children.length - 1];
           pageData.el = pageEl;
 
+          // zhennann
+          if (!pageEl.classList.contains('page')) {
+            // eslint-disable-next-line
+            console.error(("The first element of " + (componentRouterData.component.$f7route.path) + " should be f7-page or eb-page"));
+          }
+
           resolve(pageEl);
           resolved = true;
         }
@@ -13083,6 +13104,13 @@
 
         viewRouter.pages.push(pageData);
         viewRouter.setPages(viewRouter.pages);
+
+        // by zhennann
+        // Update router history: hack: navigate.js #305
+        if (options.reloadAll) {
+          router.history = [];
+          router.saveHistory();
+        }
       },
       removePage: function removePage($pageEl) {
         if (!$pageEl) { return; }
@@ -13260,7 +13288,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: April 10, 2020
+   * Released on: April 12, 2020
    */
 
   function f7ready(callback) {
@@ -13385,6 +13413,13 @@
         },
       });
       // DEFINE_INSTANCE_PROTOS_END
+
+      // by zhennann
+      Object.defineProperty(Extend.prototype, '$vuef7', {
+        get: function get() {
+          return f7;
+        },
+      });
 
       var theme = params.theme;
       if (theme === 'md') { f7Theme.md = true; }

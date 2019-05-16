@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: April 10, 2020
+ * Released on: April 12, 2020
  */
 import Vue from 'vue';
 import f7AccordionContent from './components/accordion-content';
@@ -227,6 +227,13 @@ const Plugin = {
       },
     });
     // DEFINE_INSTANCE_PROTOS_END
+
+    // by zhennann
+    Object.defineProperty(Extend.prototype, '$vuef7', {
+      get() {
+        return f7;
+      },
+    });
 
     const { theme } = params;
     if (theme === 'md') f7Theme.md = true;

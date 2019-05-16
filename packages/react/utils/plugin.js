@@ -32,6 +32,13 @@ const Plugin = {
     });
     // DEFINE_INSTANCE_PROTOS_END
 
+    // by zhennann
+    Object.defineProperty(Extend.prototype, '$vuef7', {
+      get() {
+        return f7;
+      },
+    });
+
     const { theme } = params;
     if (theme === 'md') f7Theme.md = true;
     if (theme === 'ios') f7Theme.ios = true;

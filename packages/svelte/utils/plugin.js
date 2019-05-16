@@ -16,6 +16,12 @@ const Plugin = {
     f7.events = new Framework7.Events();
     // eslint-disable-next-line
     
+    // by zhennann
+    Object.defineProperty(Extend.prototype, '$vuef7', {
+      get() {
+        return f7;
+      },
+    });
     const { theme } = params;
     if (theme === 'md') f7Theme.md = true;
     if (theme === 'ios') f7Theme.ios = true;

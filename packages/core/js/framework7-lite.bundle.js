@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: April 10, 2020
+ * Released on: April 12, 2020
  */
 
 (function (global, factory) {
@@ -2765,6 +2765,13 @@
         '--f7-theme-color-shade': shade,
         '--f7-theme-color-tint': tint,
       };
+    },
+    // by zhennann
+    getViewHost: function getViewHost(app, $el) {
+      var $hostEl = $el.parents('.views');
+      if ($hostEl.length === 0) { $hostEl = $el.parents('.view'); }
+      if ($hostEl.length === 0) { $hostEl = app.root; }
+      return $hostEl;
     },
   };
 
@@ -9186,7 +9193,13 @@
         console.warn('Framework7: wrong or not complete pushState configuration, trying to guess pushStateRoot');
         pushStateRoot = doc.location.pathname.split('index.html')[0];
       }
-      if (!pushState || !pushStateOnLoad) {
+
+      // by zhennann
+      if (app.params.router.initEmpty) {
+        initUrl = app.params.router.initEmpty;
+        router.history = [];
+        router.saveHistory();
+      } else if (!pushState || !pushStateOnLoad) {
         if (!initUrl) {
           initUrl = documentUrl;
         }
@@ -9223,6 +9236,7 @@
         }
         router.saveHistory();
       }
+
       var currentRoute;
       if (router.history.length > 1) {
         // Will load page
@@ -9641,6 +9655,9 @@
           }
         });
       });
+
+      // by zhennann
+      if (isLink && $clickedLinkEl.is('.eb-external')) { return; }
 
       // Load Page
       var clickedLinkData = {};
@@ -10075,6 +10092,7 @@
         });
       },
       modalOpen: function modalOpen(modal) {
+        if (!modal || !modal.$el) { return; }
         var app = this;
         modal.$el.find('.view-init').each(function (index, viewEl) {
           if (viewEl.f7View) { return; }
@@ -10812,6 +10830,7 @@
         }
       },
       'panelOpen panelSwipeOpen modalOpen': function onPanelModalOpen(instance) {
+        if (!instance || !instance.$el) { return; }
         var app = this;
         instance.$el.find('.navbar:not(.navbar-previous):not(.stacked)').each(function (index, navbarEl) {
           app.navbar.size(navbarEl);
@@ -11301,8 +11320,22 @@
 
       var $modalParentEl = $el.parent();
       var wasInDom = $el.parents(doc).length > 0;
-      if (app.params.modal.moveToRoot && !$modalParentEl.is(app.root)) {
-        app.root.append($el);
+      var $hostEl;
+      if (app.params.modal.moveToRoot) {
+        $hostEl = app.root;
+      } else {
+        $hostEl = $(modal.params.hostEl);
+        if ($hostEl.length === 0) {
+          if (wasInDom) {
+            $hostEl = Utils.getViewHost(app, $el);
+          } else {
+            var $targetEl = $(modal.params.targetEl);
+            $hostEl = Utils.getViewHost(app, $targetEl);
+          }
+        }
+      }
+      if ($hostEl && !$modalParentEl.is($hostEl)) {
+        $hostEl.append($el);
         modal.once((type + "Closed"), function () {
           if (wasInDom) {
             $modalParentEl.append($el);
@@ -11311,6 +11344,20 @@
           }
         });
       }
+
+      // Backdrop
+      if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
+        var className = $backdropEl.prop('className');
+        var backdropEl = $hostEl.children(("." + className));
+        if (backdropEl.length === 0) {
+          backdropEl = $(("<div class=\"" + className + "\"></div>"));
+          $hostEl.append(backdropEl);
+        }
+        $backdropEl = backdropEl;
+        modal.$backdropEl = backdropEl;
+        modal.backdropEl = backdropEl[0];
+      }
+
       // Show Modal
       $el.show();
 
@@ -11437,6 +11484,13 @@
     Modal.prototype.destroy = function destroy () {
       var modal = this;
       if (modal.destroyed) { return; }
+
+      // by zhennann
+      if (modal.$el && modal.$el.hasClass('modal-out')) {
+        // force closed
+        modal.onClosed();
+      }
+
       modal.emit(("local::beforeDestroy modalBeforeDestroy " + (modal.type) + "BeforeDestroy"), modal);
       if (modal.$el) {
         modal.$el.trigger(("modal:beforedestroy " + (modal.type.toLowerCase()) + ":beforedestroy"));
@@ -11570,6 +11624,7 @@
       }, params);
       if (typeof extendedParams.closeByBackdropClick === 'undefined') {
         extendedParams.closeByBackdropClick = app.params.dialog.closeByBackdropClick;
+        extendedParams.backdrop = app.params.dialog.backdrop;
       }
       if (typeof extendedParams.backdrop === 'undefined') {
         extendedParams.backdrop = app.params.dialog.backdrop;
@@ -11589,6 +11644,13 @@
       var backdrop = extendedParams.backdrop;
 
       dialog.params = extendedParams;
+
+      // Host El
+      var $hostEl;
+      if (dialog.params.hostEl) {
+        $hostEl = $(dialog.params.hostEl);
+        if ($hostEl.length === 0) { return dialog; }
+      }
 
       // Find Element
       var $el;
@@ -11618,6 +11680,7 @@
         return dialog.destroy();
       }
 
+      // Backdrop
       var $backdropEl;
       if (backdrop) {
         $backdropEl = app.root.children('.dialog-backdrop');
@@ -11681,6 +11744,8 @@
       }
       Utils.extend(dialog, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $el: $el,
         el: $el[0],
         $backdropEl: $backdropEl,
@@ -11807,17 +11872,23 @@
         {
           // Shortcuts
           alert: function alert() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2]);
             if (args.length === 2 && typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], title = assign[2]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], title = assign$1[2]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle() : title,
               text: text,
               buttons: [{
@@ -11830,20 +11901,26 @@
             }).open();
           },
           prompt: function prompt() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
-            var defaultValue = args[4];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            var defaultValue;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3], defaultValue = assign[4]);
             if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], defaultValue = assign[3], title = assign[4]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], defaultValue = assign$1[3], title = assign$1[4]);
             }
             defaultValue = typeof defaultValue === 'undefined' || defaultValue === null ? '' : defaultValue;
-            return new Dialog(app, Object.assign({}, {title: typeof title === 'undefined' ? defaultDialogTitle() : title,
+            return new Dialog(app, Object.assign({}, {hostEl: hostEl,
+              title: typeof title === 'undefined' ? defaultDialogTitle() : title,
               text: text,
               content: ("<div class=\"dialog-input-field input\"><input type=\"text\" class=\"dialog-input\" value=\"" + defaultValue + "\"></div>"),
               buttons: [
@@ -11866,18 +11943,24 @@
               autoFocusHandler)).open();
           },
           confirm: function confirm() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
             if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
             }
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? defaultDialogTitle() : title,
               text: text,
               buttons: [
@@ -11897,18 +11980,24 @@
             }).open();
           },
           login: function login() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
-            if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
             }
-            return new Dialog(app, Object.assign({}, {title: typeof title === 'undefined' ? defaultDialogTitle() : title,
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
+            if (typeof args[1] === 'function') {
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
+            }
+            return new Dialog(app, Object.assign({}, {hostEl: hostEl,
+              title: typeof title === 'undefined' ? defaultDialogTitle() : title,
               text: text,
               content: ("\n              <div class=\"dialog-input-field dialog-input-double input\">\n                <input type=\"text\" name=\"dialog-username\" placeholder=\"" + (app.params.dialog.usernamePlaceholder) + "\" class=\"dialog-input\">\n              </div>\n              <div class=\"dialog-input-field dialog-input-double input\">\n                <input type=\"password\" name=\"dialog-password\" placeholder=\"" + (app.params.dialog.passwordPlaceholder) + "\" class=\"dialog-input\">\n              </div>"),
               buttons: [
@@ -11932,18 +12021,24 @@
               autoFocusHandler)).open();
           },
           password: function password() {
-            var assign;
+            var assign, assign$1;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var text = args[0];
-            var title = args[1];
-            var callbackOk = args[2];
-            var callbackCancel = args[3];
-            if (typeof args[1] === 'function') {
-              (assign = args, text = assign[0], callbackOk = assign[1], callbackCancel = assign[2], title = assign[3]);
+            var hostEl;
+            var text;
+            var title;
+            var callbackOk;
+            var callbackCancel;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
             }
-            return new Dialog(app, Object.assign({}, {title: typeof title === 'undefined' ? defaultDialogTitle() : title,
+            (assign = args, text = assign[0], title = assign[1], callbackOk = assign[2], callbackCancel = assign[3]);
+            if (typeof args[1] === 'function') {
+              (assign$1 = args, text = assign$1[0], callbackOk = assign$1[1], callbackCancel = assign$1[2], title = assign$1[3]);
+            }
+            return new Dialog(app, Object.assign({}, {hostEl: hostEl,
+              title: typeof title === 'undefined' ? defaultDialogTitle() : title,
               text: text,
               content: ("\n              <div class=\"dialog-input-field input\">\n                <input type=\"password\" name=\"dialog-password\" placeholder=\"" + (app.params.dialog.passwordPlaceholder) + "\" class=\"dialog-input\">\n              </div>"),
               buttons: [
@@ -11965,9 +12060,19 @@
               destroyOnClose: destroyOnClose},
               autoFocusHandler)).open();
           },
-          preloader: function preloader(title, color) {
+          preloader: function preloader() {
+            var args = [], len = arguments.length;
+            while ( len-- ) args[ len ] = arguments[ len ];
+
+            var hostEl;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            var title = args[0];
+            var color = args[1];
             var preloaderInner = Utils[((app.theme) + "PreloaderContent")] || '';
             return new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' || title === null ? app.params.dialog.preloaderTitle : title,
               content: ("<div class=\"preloader" + (color ? (" color-" + color) : '') + "\">" + preloaderInner + "</div>"),
               cssClass: 'dialog-preloader',
@@ -11975,26 +12080,32 @@
             }).open();
           },
           progress: function progress() {
-            var assign, assign$1, assign$2;
+            var assign, assign$1, assign$2, assign$3;
 
             var args = [], len = arguments.length;
             while ( len-- ) args[ len ] = arguments[ len ];
-            var title = args[0];
-            var progress = args[1];
-            var color = args[2];
+            var hostEl;
+            var title;
+            var progress;
+            var color;
+            if (args[0] && args[0].resize) {
+              hostEl = args.shift();
+            }
+            (assign = args, title = assign[0], progress = assign[1], color = assign[2]);
             if (args.length === 2) {
               if (typeof args[0] === 'number') {
-                (assign = args, progress = assign[0], color = assign[1], title = assign[2]);
+                (assign$1 = args, progress = assign$1[0], color = assign$1[1], title = assign$1[2]);
               } else if (typeof args[0] === 'string' && typeof args[1] === 'string') {
-                (assign$1 = args, title = assign$1[0], color = assign$1[1], progress = assign$1[2]);
+                (assign$2 = args, title = assign$2[0], color = assign$2[1], progress = assign$2[2]);
               }
             } else if (args.length === 1) {
               if (typeof args[0] === 'number') {
-                (assign$2 = args, progress = assign$2[0], title = assign$2[1], color = assign$2[2]);
+                (assign$3 = args, progress = assign$3[0], title = assign$3[1], color = assign$3[2]);
               }
             }
             var infinite = typeof progress === 'undefined';
             var dialog = new Dialog(app, {
+              hostEl: hostEl,
               title: typeof title === 'undefined' ? app.params.dialog.progressTitle : title,
               cssClass: 'dialog-progress',
               content: ("\n              <div class=\"progressbar" + (infinite ? '-infinite' : '') + (color ? (" color-" + color) : '') + "\">\n                " + (!infinite ? '<span></span>' : '') + "\n              </div>\n            "),
@@ -12451,6 +12562,13 @@
 
       popover.params = extendedParams;
 
+      // Host El
+      var $hostEl;
+      if (popover.params.hostEl) {
+        $hostEl = $(popover.params.hostEl);
+        if ($hostEl.length === 0) { return popover; }
+      }
+
       // Find Element
       var $el;
       if (!popover.params.el) {
@@ -12496,6 +12614,8 @@
 
       Utils.extend(popover, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $el: $el,
         el: $el[0],
         $targetEl: $targetEl,
@@ -12612,6 +12732,26 @@
         $el.removeClass('popover-on-left popover-on-right popover-on-top popover-on-bottom popover-on-middle').css({ left: '', top: '' });
       }
 
+      // by zhennann
+      var parentExtend;
+      var view = $targetEl.parents('.view');
+      if (view.length > 0) {
+        var viewOffset = view.offset();
+        parentExtend = {
+          left: viewOffset.left,
+          top: viewOffset.top,
+          width: view.width(),
+          height: view.height(),
+        };
+      } else {
+        parentExtend = {
+          left: app.left,
+          top: app.top,
+          width: app.width,
+          height: app.height,
+        };
+      }
+
       var targetWidth;
       var targetHeight;
       var targetOffsetLeft;
@@ -12623,8 +12763,8 @@
         targetHeight = $targetEl.outerHeight();
 
         var targetOffset = $targetEl.offset();
-        targetOffsetLeft = targetOffset.left - app.left;
-        targetOffsetTop = targetOffset.top - app.top;
+        targetOffsetLeft = targetOffset.left - parentExtend.left;
+        targetOffsetTop = targetOffset.top - parentExtend.top;
 
         var targetParentPage = $targetEl.parents('.page');
         if (targetParentPage.length > 0) {
@@ -12644,7 +12784,7 @@
       // Top Position
       var position = app.theme === 'md' ? 'bottom' : 'top';
       if (app.theme === 'md') {
-        if (height < app.height - targetOffsetTop - targetHeight) {
+        if (height < parentExtend.height - targetOffsetTop - targetHeight) {
           // On bottom
           position = 'bottom';
           top = targetOffsetTop + targetHeight;
@@ -12657,11 +12797,11 @@
           position = 'middle';
           top = ((targetHeight / 2) + targetOffsetTop) - (height / 2);
         }
-        top = Math.max(8, Math.min(top, app.height - height - 8));
+        top = Math.max(8, Math.min(top, parentExtend.height - height - 8));
 
         // Horizontal Position
         var hPosition;
-        if (targetOffsetLeft < app.width / 2) {
+        if (targetOffsetLeft < parentExtend.width / 2) {
           hPosition = 'right';
           left = position === 'middle'
             ? targetOffsetLeft + targetWidth
@@ -12672,14 +12812,14 @@
             ? targetOffsetLeft - width
             : (targetOffsetLeft + targetWidth) - width;
         }
-        left = Math.max(8, Math.min(left, app.width - width - 8));
+        left = Math.max(8, Math.min(left, parentExtend.width - width - 8));
         $el.addClass(("popover-on-" + position + " popover-on-" + hPosition));
       } else {
         // ios and aurora
         if ((height + angleSize) < targetOffsetTop - safeAreaTop) {
           // On top
           top = targetOffsetTop - height - angleSize;
-        } else if ((height + angleSize) < app.height - targetOffsetTop - targetHeight) {
+        } else if ((height + angleSize) < parentExtend.height - targetOffsetTop - targetHeight) {
           // On bottom
           position = 'bottom';
           top = targetOffsetTop + targetHeight + angleSize;
@@ -12688,7 +12828,7 @@
           position = 'middle';
           top = ((targetHeight / 2) + targetOffsetTop) - (height / 2);
           diff = top;
-          top = Math.max(5, Math.min(top, app.height - height - 5));
+          top = Math.max(5, Math.min(top, parentExtend.height - height - 5));
           diff -= top;
         }
 
@@ -12696,7 +12836,7 @@
         if (position === 'top' || position === 'bottom') {
           left = ((targetWidth / 2) + targetOffsetLeft) - (width / 2);
           diff = left;
-          left = Math.max(5, Math.min(left, app.width - width - 5));
+          left = Math.max(5, Math.min(left, parentExtend.width - width - 5));
           if (position === 'top') {
             $angleEl.addClass('on-bottom');
           }
@@ -12710,9 +12850,9 @@
         } else if (position === 'middle') {
           left = targetOffsetLeft - width - angleSize;
           $angleEl.addClass('on-right');
-          if (left < 5 || (left + width > app.width)) {
+          if (left < 5 || (left + width > parentExtend.width)) {
             if (left < 5) { left = targetOffsetLeft + targetWidth + angleSize; }
-            if (left + width > app.width) { left = app.width - width - 5; }
+            if (left + width > parentExtend.width) { left = parentExtend.width - width - 5; }
             $angleEl.removeClass('on-right').addClass('on-left');
           }
           angleTop = ((height / 2) - angleSize) + diff;
@@ -12808,6 +12948,13 @@
 
       actions.params = extendedParams;
 
+      // Host El
+      var $hostEl;
+      if (actions.params.hostEl) {
+        $hostEl = $(actions.params.hostEl);
+        if ($hostEl.length === 0) { return actions; }
+      }
+
       // Buttons
       var groups;
       if (actions.params.buttons) {
@@ -12881,6 +13028,7 @@
         var targetHeight = ref.targetHeight;
         if (actions.params.convertToPopover && (targetEl || (targetX !== undefined && targetY !== undefined))) {
           // Popover
+          /*
           if (
             actions.params.forceToPopover
             || (app.device.ios && app.device.ipad)
@@ -12889,9 +13037,18 @@
           ) {
             convertToPopover = true;
           }
+          */
+          // by zhennann
+          var $view = $(targetEl).parents('.view');
+          var viewSize = $view.data('size');
+          var isPopover = viewSize !== 'small';
+          if (actions.params.forceToPopover || isPopover) {
+            convertToPopover = true;
+          }
         }
         if (convertToPopover && actions.popoverHtml) {
           popover = app.popover.create({
+            hostEl: $hostEl && $hostEl[0],
             content: actions.popoverHtml,
             backdrop: actions.params.backdrop,
             targetEl: targetEl,
@@ -12975,6 +13132,8 @@
 
       Utils.extend(actions, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $el: $el,
         el: $el ? $el[0] : undefined,
         $backdropEl: $backdropEl,
@@ -18441,9 +18600,10 @@
       var $itemInputEl = $inputEl.parents('.item-input');
       var $inputWrapEl = $inputEl.parents('.input');
       var validity = $inputEl[0].validity;
-      var validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || '';
+      // const validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || '';
+      var validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || $inputEl[0].ebCustomError || '';
       if (!validity) { return true; }
-      if (!validity.valid) {
+      if (!validity.valid || $inputEl[0].ebCustomError) {
         var $errorEl = $inputEl.nextAll('.item-input-error-message, .input-error-message');
         if (validationMessage) {
           if ($errorEl.length === 0) {
@@ -20775,6 +20935,7 @@
 
       var sheetParams = {
         content: sheetHtml,
+        targetEl: ss.$el,
         backdrop: false,
         scrollToEl: ss.$el,
         closeByOutsideClick: true,
@@ -21242,6 +21403,12 @@
 
       calendar.params = Utils.extend({}, app.params.calendar, params);
 
+      var $hostEl;
+      if (calendar.params.hostEl) {
+        $hostEl = $(calendar.params.hostEl);
+        if ($hostEl.length === 0) { return calendar; }
+      }
+
       var $containerEl;
       if (calendar.params.containerEl) {
         $containerEl = $(calendar.params.containerEl);
@@ -21262,6 +21429,8 @@
 
       Utils.extend(calendar, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $containerEl: $containerEl,
         containerEl: $containerEl && $containerEl[0],
         inline: $containerEl && $containerEl.length > 0,
@@ -21720,23 +21889,27 @@
 
     Calendar.prototype.isPopover = function isPopover () {
       var calendar = this;
-      var app = calendar.app;
       var modal = calendar.modal;
       var params = calendar.params;
+      var $inputEl = calendar.$inputEl;
       if (params.openIn === 'sheet') { return false; }
       if (modal && modal.type !== 'popover') { return false; }
 
       if (!calendar.inline && calendar.inputEl) {
         if (params.openIn === 'popover') { return true; }
-        if (app.device.ios) {
-          return !!app.device.ipad;
-        }
-        if (app.width >= 768) {
-          return true;
-        }
-        if (app.device.desktop && app.theme === 'aurora') {
-          return true;
-        }
+        // by zhennann
+        var $view = $inputEl.parents('.view');
+        var viewSize = $view.data('size');
+        return viewSize !== 'small';
+        // if (app.device.ios) {
+        //   return !!app.device.ipad;
+        // }
+        // if (app.width >= 768) {
+        //   return true;
+        // }
+        // if (app.device.desktop && app.theme === 'aurora') {
+        //   return true;
+        // }
       }
       return false;
     };
@@ -22856,6 +23029,7 @@
       var app = calendar.app;
       var opened = calendar.opened;
       var inline = calendar.inline;
+      var $hostEl = calendar.$hostEl;
       var $inputEl = calendar.$inputEl;
       var params = calendar.params;
       if (opened) { return; }
@@ -22877,6 +23051,7 @@
       var modalContent = calendar.render();
 
       var modalParams = {
+        hostEl: $hostEl,
         targetEl: $inputEl,
         scrollToEl: params.scrollToInput ? $inputEl : undefined,
         content: modalContent,
@@ -23590,23 +23765,27 @@
 
     Picker.prototype.isPopover = function isPopover () {
       var picker = this;
-      var app = picker.app;
       var modal = picker.modal;
       var params = picker.params;
+      var $inputEl = picker.$inputEl;
       if (params.openIn === 'sheet') { return false; }
       if (modal && modal.type !== 'popover') { return false; }
 
       if (!picker.inline && picker.inputEl) {
         if (params.openIn === 'popover') { return true; }
-        if (app.device.ios) {
-          return !!app.device.ipad;
-        }
-        if (app.width >= 768) {
-          return true;
-        }
-        if (app.device.desktop && app.theme === 'aurora') {
-          return true;
-        }
+        // by zhennann
+        var $view = $inputEl.parents('.view');
+        var viewSize = $view.data('size');
+        return viewSize !== 'small';
+        // if (app.device.ios) {
+        //   return !!app.device.ipad;
+        // }
+        // if (app.width >= 768) {
+        //   return true;
+        // }
+        // if (app.device.desktop && app.theme === 'aurora') {
+        //   return true;
+        // }
       }
       return false;
     };
@@ -35449,6 +35628,15 @@
         if ($inputEl.length) { $inputEl[0].f7Autocomplete = ac; }
       }
 
+      var view;
+      if (ac.params.view) {
+        view = ac.params.view;
+      } else if ($openerEl || $inputEl) {
+        var $el = $openerEl || $inputEl;
+        view = $el.parents('.view').length && $el.parents('.view')[0].f7View;
+      }
+      if (!view) { view = app.views.main; }
+
       var id = Utils.id();
 
       var url = params.url;
@@ -38211,6 +38399,12 @@
 
       self.params = Utils.extend({}, app.params.colorPicker, params);
 
+      var $hostEl;
+      if (self.params.hostEl) {
+        $hostEl = $(self.params.hostEl);
+        if ($hostEl.length === 0) { return self; }
+      }
+
       var $containerEl;
       if (self.params.containerEl) {
         $containerEl = $(self.params.containerEl);
@@ -38229,6 +38423,8 @@
 
       Utils.extend(self, {
         app: app,
+        $hostEl: $hostEl,
+        hostEl: $hostEl && $hostEl[0],
         $containerEl: $containerEl,
         containerEl: $containerEl && $containerEl[0],
         inline: $containerEl && $containerEl.length > 0,
@@ -38380,22 +38576,28 @@
 
     ColorPicker.prototype.getModalType = function getModalType () {
       var self = this;
-      var app = self.app;
       var modal = self.modal;
       var params = self.params;
+      var $inputEl = self.$inputEl;
       var openIn = params.openIn;
       var openInPhone = params.openInPhone;
       if (modal && modal.type) { return modal.type; }
       if (openIn !== 'auto') { return openIn; }
       if (self.inline) { return null; }
-      if (app.device.ios) {
-        return app.device.ipad ? 'popover' : openInPhone;
-      }
-      if (app.width >= 768 || (app.device.desktop && app.theme === 'aurora')) {
-        return 'popover';
-      }
 
-      return openInPhone;
+      // by zhennann
+      var $view = $inputEl.parents('.view');
+      var viewSize = $view.data('size');
+      return viewSize !== 'small' ? 'popover' : openInPhone;
+
+      // if (app.device.ios) {
+      //   return app.device.ipad ? 'popover' : openInPhone;
+      // }
+      // if (app.width >= 768 || (app.device.desktop && app.theme === 'aurora')) {
+      //   return 'popover';
+      // }
+
+      // return openInPhone;
     };
 
     ColorPicker.prototype.formatValue = function formatValue () {
@@ -38853,6 +39055,7 @@
       var app = self.app;
       var opened = self.opened;
       var inline = self.inline;
+      var $hostEl = self.$hostEl;
       var $inputEl = self.$inputEl;
       var $targetEl = self.$targetEl;
       var params = self.params;
@@ -38905,6 +39108,7 @@
           if (modalType === 'popup') { backdrop = true; }
         }
         var modalParams = {
+          hostEl: $hostEl,
           targetEl: ($targetEl || $inputEl),
           scrollToEl: params.scrollToInput ? ($targetEl || $inputEl) : undefined,
           content: colorPickerContent,
@@ -40057,7 +40261,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: April 10, 2020
+   * Released on: April 12, 2020
    */
 
   // Install Core Modules & Components
