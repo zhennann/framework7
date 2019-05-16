@@ -18,6 +18,7 @@ class Dialog extends Modal {
     }, params);
     if (typeof extendedParams.closeByBackdropClick === 'undefined') {
       extendedParams.closeByBackdropClick = app.params.dialog.closeByBackdropClick;
+      extendedParams.backdrop = app.params.dialog.backdrop;
     }
 
     // Extends with open/close Modal methods;
@@ -28,6 +29,13 @@ class Dialog extends Modal {
     const { title, text, content, buttons, verticalButtons, cssClass } = extendedParams;
 
     dialog.params = extendedParams;
+
+    // Host El
+    let $hostEl;
+    if (dialog.params.hostEl) {
+      $hostEl = $(dialog.params.hostEl);
+      if ($hostEl.length === 0) return dialog;
+    }
 
     // Find Element
     let $el;
@@ -72,10 +80,14 @@ class Dialog extends Modal {
       return dialog.destroy();
     }
 
-    let $backdropEl = app.root.children('.dialog-backdrop');
-    if ($backdropEl.length === 0) {
-      $backdropEl = $('<div class="dialog-backdrop"></div>');
-      app.root.append($backdropEl);
+    // Backdrop
+    let $backdropEl;
+    if (dialog.params.backdrop) {
+      $backdropEl = app.root.children('.dialog-backdrop');
+      if ($backdropEl.length === 0) {
+        $backdropEl = $('<div class="dialog-backdrop"></div>');
+        app.root.append($backdropEl);
+      }
     }
 
     // Assign events
@@ -132,10 +144,12 @@ class Dialog extends Modal {
     }
     Utils.extend(dialog, {
       app,
+      $hostEl,
+      hostEl: $hostEl && $hostEl[0],
       $el,
       el: $el[0],
       $backdropEl,
-      backdropEl: $backdropEl[0],
+      backdropEl: $backdropEl && $backdropEl[0],
       type: 'dialog',
       setProgress(progress, duration) {
         app.progressbar.set($el.find('.progressbar'), progress, duration);

@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: May 13, 2019
+ * Released on: May 15, 2019
  */
 
 (function (global, factory) {
@@ -13781,7 +13781,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: May 13, 2019
+   * Released on: May 15, 2019
    */
 
   var Plugin = {
@@ -13894,6 +13894,13 @@
       Object.defineProperty(Extend.prototype, '$f7', {
         get: function get() {
           return f7.instance;
+        },
+      });
+
+      // by zhennann
+      Object.defineProperty(Extend.prototype, '$vuef7', {
+        get: function get() {
+          return f7;
         },
       });
 

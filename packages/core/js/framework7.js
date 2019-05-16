@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: May 13, 2019
+ * Released on: May 15, 2019
  */
 
 (function (global, factory) {
@@ -12935,8 +12935,23 @@
 
       var $modalParentEl = $el.parent();
       var wasInDom = $el.parents(doc).length > 0;
-      if (app.params.modal.moveToRoot && !$modalParentEl.is(app.root)) {
-        app.root.append($el);
+      var $hostEl;
+      if (app.params.modal.moveToRoot) {
+        $hostEl = app.root;
+      } else {
+        $hostEl = modal.params.hostEl;
+        if (!$hostEl) {
+          if (wasInDom) {
+            $hostEl = $el.parents('.views');
+            if ($hostEl.length === 0) { $hostEl = $el.parents('.view'); }
+          }
+          if (!$hostEl || $hostEl.length === 0) {
+            $hostEl = app.root;
+          }
+        }
+      }
+      if ($hostEl && !$modalParentEl.is($hostEl)) {
+        $hostEl.append($el);
         modal.once((type + "Closed"), function () {
           if (wasInDom) {
             $modalParentEl.append($el);
@@ -12945,6 +12960,20 @@
           }
         });
       }
+
+      // Backdrop
+      if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
+        var className = $backdropEl.prop('className');
+        var backdropEl = $hostEl.children(("." + className));
+        if (backdropEl.length === 0) {
+          backdropEl = $(("<div class=\"" + className + "\"></div>"));
+          $hostEl.append(backdropEl);
+        }
+        $backdropEl = backdropEl;
+        modal.$backdropEl = backdropEl;
+        modal.backdropEl = backdropEl[0];
+      }
+
       // Show Modal
       $el.show();
 

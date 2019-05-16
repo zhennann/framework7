@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: May 13, 2019
+ * Released on: May 15, 2019
  */
 
 (function (global, factory) {
@@ -378,6 +378,9 @@
     Object.keys($props).forEach(function (propKey) {
       if (typeof $props[propKey] !== 'undefined') { props[propKey] = $props[propKey]; }
     });
+
+    // by zhennann
+    Object.assign(props, component._data);
 
     var children = [];
     Object.keys(component.$slots).forEach(function (slotName) {
@@ -12275,7 +12278,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: May 13, 2019
+   * Released on: May 15, 2019
    */
 
   var Plugin = {
@@ -12388,6 +12391,13 @@
       Object.defineProperty(Extend.prototype, '$f7', {
         get: function get() {
           return f7.instance;
+        },
+      });
+
+      // by zhennann
+      Object.defineProperty(Extend.prototype, '$vuef7', {
+        get: function get() {
+          return f7;
         },
       });
 
