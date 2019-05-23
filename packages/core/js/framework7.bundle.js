@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: May 16, 2019
+ * Released on: May 23, 2019
  */
 
 (function (global, factory) {
@@ -14260,14 +14260,6 @@
         targetOffsetLeft = targetOffset.left - app.left;
         targetOffsetTop = targetOffset.top - app.top;
 
-        // by zhennann
-        var view = $targetEl.parents('.view');
-        if (view.length > 0) {
-          var viewOffset = view.offset();
-          targetOffsetLeft -= viewOffset.left;
-          targetOffsetTop -= viewOffset.top;
-        }
-
         var targetParentPage = $targetEl.parents('.page');
         if (targetParentPage.length > 0) {
           targetOffsetTop -= targetParentPage[0].scrollTop;
@@ -14361,6 +14353,14 @@
           angleTop = Math.max(Math.min(angleTop, height - (angleSize * 2) - 13), 13);
           $angleEl.css({ top: (angleTop + "px") });
         }
+      }
+
+      // by zhennann
+      var view = $targetEl.parents('.view');
+      if (view.length > 0) {
+        var viewOffset = view.offset();
+        left -= viewOffset.left;
+        top -= viewOffset.top;
       }
 
       // Apply Styles

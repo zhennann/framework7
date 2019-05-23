@@ -174,14 +174,6 @@ class Popover extends Modal {
       targetOffsetLeft = targetOffset.left - app.left;
       targetOffsetTop = targetOffset.top - app.top;
 
-      // by zhennann
-      const view = $targetEl.parents('.view');
-      if (view.length > 0) {
-        const viewOffset = view.offset();
-        targetOffsetLeft -= viewOffset.left;
-        targetOffsetTop -= viewOffset.top;
-      }
-
       const targetParentPage = $targetEl.parents('.page');
       if (targetParentPage.length > 0) {
         targetOffsetTop -= targetParentPage[0].scrollTop;
@@ -272,6 +264,14 @@ class Popover extends Modal {
         angleTop = Math.max(Math.min(angleTop, height - (angleSize * 2) - 13), 13);
         $angleEl.css({ top: `${angleTop}px` });
       }
+    }
+
+    // by zhennann
+    const view = $targetEl.parents('.view');
+    if (view.length > 0) {
+      const viewOffset = view.offset();
+      left -= viewOffset.left;
+      top -= viewOffset.top;
     }
 
     // Apply Styles

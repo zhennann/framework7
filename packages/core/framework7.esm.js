@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: May 16, 2019
+ * Released on: May 23, 2019
  */
 
 import Template7 from 'template7';
