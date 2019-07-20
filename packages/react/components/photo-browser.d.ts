@@ -48,6 +48,7 @@ declare class F7PhotoBrowser extends React.Component<F7PhotoBrowser.Props, {}> {
   expositionToggle() : unknown
   expositionEnable() : unknown
   expositionDisable() : unknown
+  getView() : unknown
   f7PhotoBrowser: PhotoBrowserNamespace.PhotoBrowser
 }
 export default F7PhotoBrowser;

@@ -116,6 +116,7 @@ export default {
       });
 
       params = Utils.extend({}, params, {
+        view: self.getView(),
         on: {
           open() {
             self.dispatchEvent('photobrowser:open photoBrowserOpen');
@@ -153,6 +154,14 @@ export default {
     },
     expositionDisable() {
       return this.f7PhotoBrowser.expositionDisable();
+    },
+    getView() {
+      const $el = this.$$(this.$el);
+      const view = $el.parents('.view').length && $el.parents('.view')[0].f7View;
+      if (!view) {
+        throw Error('Photo Browser requires initialized View');
+      }
+      return view;
     },
   },
 };

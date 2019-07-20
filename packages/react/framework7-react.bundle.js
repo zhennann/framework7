@@ -10230,6 +10230,17 @@
       return this.f7PhotoBrowser.expositionDisable();
     };
 
+    F7PhotoBrowser.prototype.getView = function getView () {
+      var $el = this.$$(this.$el);
+      var view = $el.parents('.view').length && $el.parents('.view')[0].f7View;
+
+      if (!view) {
+        throw Error('Photo Browser requires initialized View');
+      }
+
+      return view;
+    };
+
     F7PhotoBrowser.prototype.render = function render () {
       return null;
     };
@@ -10244,6 +10255,7 @@
           if (typeof params[param] === 'undefined' || params[param] === '') { delete params[param]; }
         });
         params = Utils.extend({}, params, {
+          view: self.getView(),
           on: {
             open: function open() {
               self.dispatchEvent('photobrowser:open photoBrowserOpen');
