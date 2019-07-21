@@ -36,7 +36,9 @@ function initSwiper(swiperEl) {
       const value = params[key];
       if (typeof value === 'string' && value.indexOf('{') === 0 && value.indexOf('}') > 0) {
         try {
-          params[key] = JSON.parse(value);
+          // by zhennann
+          const value2 = value.replace(/'/g, '"');
+          params[key] = JSON.parse(value2);
         } catch (e) {
           // not JSON
         }
