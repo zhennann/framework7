@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: July 22, 2019
+ * Released on: July 27, 2019
  */
 
 (function (global, factory) {
@@ -25331,14 +25331,18 @@
       tabMounted: function tabMounted(tabEl) {
         var app = this;
         var $tabEl = $(tabEl);
-        $tabEl.find('.infinite-scroll-content').each(function (index, el) {
+        var $isEls = $tabEl.find('.infinite-scroll-content');
+        if ($tabEl.is('.infinite-scroll-content')) { $isEls.add($tabEl); }
+        $isEls.each(function (index, el) {
           app.infiniteScroll.create(el);
         });
       },
       tabBeforeRemove: function tabBeforeRemove(tabEl) {
         var $tabEl = $(tabEl);
         var app = this;
-        $tabEl.find('.infinite-scroll-content').each(function (index, el) {
+        var $isEls = $tabEl.find('.infinite-scroll-content');
+        if ($tabEl.is('.infinite-scroll-content')) { $isEls.add($tabEl); }
+        $isEls.each(function (index, el) {
           app.infiniteScroll.destroy(el);
         });
       },
@@ -25898,14 +25902,18 @@
       tabMounted: function tabMounted(tabEl) {
         var app = this;
         var $tabEl = $(tabEl);
-        $tabEl.find('.ptr-content').each(function (index, el) {
+        var $ptrEls = $tabEl.find('.ptr-content');
+        if ($tabEl.is('.ptr-content')) { $ptrEls.add($tabEl); }
+        $ptrEls.each(function (index, el) {
           app.ptr.create(el);
         });
       },
       tabBeforeRemove: function tabBeforeRemove(tabEl) {
         var $tabEl = $(tabEl);
         var app = this;
-        $tabEl.find('.ptr-content').each(function (index, el) {
+        var $ptrEls = $tabEl.find('.ptr-content');
+        if ($tabEl.is('.ptr-content')) { $ptrEls.add($tabEl); }
+        $ptrEls.each(function (index, el) {
           app.ptr.destroy(el);
         });
       },
