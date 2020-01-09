@@ -1,6 +1,6 @@
 {
   "name": "@zhennann/framework7",
-  "version": "4.4.11",
+  "version": "4.4.12",
   "scripts": {
     "build:dev": "cross-env-shell NODE_ENV=development \"gulp build-core && gulp phenome && gulp build-vue && gulp build-react\"",
     "build:prod": "cross-env-shell NODE_ENV=production \"gulp build-core && gulp phenome && gulp build-vue && gulp build-react\"",

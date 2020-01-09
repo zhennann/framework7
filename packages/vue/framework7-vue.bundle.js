@@ -3,11 +3,11 @@
  * Build full featured iOS & Android apps using Framework7 & Vue
  * http://framework7.io/vue/
  *
- * Copyright 2014-2019 Vladimir Kharlampidi
+ * Copyright 2014-2020 Vladimir Kharlampidi
  *
  * Released under the MIT License
  *
- * Released on: July 27, 2019
+ * Released on: January 9, 2020
  */
 
 (function (global, factory) {
@@ -1611,7 +1611,7 @@
       active: Boolean,
       disabled: Boolean,
       tooltip: String
-    }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
+    }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
 
     render: function render() {
       var _h = this.$createElement;
@@ -3774,7 +3774,7 @@
       tooltip: String,
       smartSelect: Boolean,
       smartSelectParams: Object
-    }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
+    }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
 
     data: function data() {
       var props = __vueComponentProps(this);
@@ -4023,7 +4023,7 @@
       href: [Boolean, String],
       target: String,
       tooltip: String
-    }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
+    }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
 
     render: function render() {
       var _h = this.$createElement;
@@ -5266,7 +5266,7 @@
       required: Boolean,
       disabled: Boolean,
       virtualListIndex: Number
-    }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
+    }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
 
     data: function data() {
       var props = __vueComponentProps(this);
@@ -5369,7 +5369,7 @@
           var linkAttrs = Object.assign({
             href: link === true ? '' : link || href,
             target: target
-          }, Mixins.linkRouterAttrs(props), {}, Mixins.linkActionsAttrs(props));
+          }, Mixins.linkRouterAttrs(props), Mixins.linkActionsAttrs(props));
           var linkClasses = Utils.classNames({
             'item-link': true,
             'no-fastclick': noFastclick || noFastClick,
@@ -6152,7 +6152,7 @@
       href: String,
       target: String,
       divider: Boolean
-    }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
+    }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
 
     render: function render() {
       var _h = this.$createElement;
@@ -6312,7 +6312,7 @@
       link: Boolean,
       target: String,
       dropdown: Boolean
-    }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps),
+    }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps),
 
     render: function render() {
       var _h = this.$createElement;
@@ -11613,7 +11613,7 @@
         type: [Boolean, String],
         default: undefined
       }
-    }, Mixins.colorProps, {}, Mixins.linkActionsProps, {}, Mixins.linkRouterProps, {}, Mixins.linkIconProps),
+    }, Mixins.colorProps, Mixins.linkActionsProps, Mixins.linkRouterProps, Mixins.linkIconProps),
     name: 'f7-treeview-item',
 
     render: function render() {
@@ -12311,11 +12311,11 @@
    * Build full featured iOS & Android apps using Framework7 & Vue
    * http://framework7.io/vue/
    *
-   * Copyright 2014-2019 Vladimir Kharlampidi
+   * Copyright 2014-2020 Vladimir Kharlampidi
    *
    * Released under the MIT License
    *
-   * Released on: July 27, 2019
+   * Released on: January 9, 2020
    */
 
   var Plugin = {

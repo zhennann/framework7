@@ -3,11 +3,11 @@
  * Build full featured iOS & Android apps using Framework7 & React
  * http://framework7.io/react/
  *
- * Copyright 2014-2019 Vladimir Kharlampidi
+ * Copyright 2014-2020 Vladimir Kharlampidi
  *
  * Released under the MIT License
  *
- * Released on: July 27, 2019
+ * Released on: January 9, 2020
  */
 
 (function (global, factory) {
@@ -2252,7 +2252,7 @@
     active: Boolean,
     disabled: Boolean,
     tooltip: String
-  }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
+  }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
 
   F7Button.displayName = 'f7-button';
 
@@ -4632,7 +4632,7 @@
     tooltip: String,
     smartSelect: Boolean,
     smartSelectParams: Object
-  }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
+  }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
 
   F7Link.displayName = 'f7-link';
 
@@ -4800,7 +4800,7 @@
     href: [Boolean, String],
     target: String,
     tooltip: String
-  }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
+  }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
 
   F7ListButton.displayName = 'f7-list-button';
 
@@ -6137,7 +6137,7 @@
           var linkAttrs = Object.assign({
             href: link === true ? '' : link || href,
             target: target
-          }, Mixins.linkRouterAttrs(props), {}, Mixins.linkActionsAttrs(props));
+          }, Mixins.linkRouterAttrs(props), Mixins.linkActionsAttrs(props));
           var linkClasses = Utils.classNames({
             'item-link': true,
             'no-fastclick': noFastclick || noFastClick,
@@ -6457,7 +6457,7 @@
     required: Boolean,
     disabled: Boolean,
     virtualListIndex: Number
-  }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
+  }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
 
   F7ListItem.displayName = 'f7-list-item';
 
@@ -7067,7 +7067,7 @@
     href: String,
     target: String,
     divider: Boolean
-  }, Mixins.colorProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
+  }, Mixins.colorProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
 
   F7MenuDropdownItem.displayName = 'f7-menu-dropdown-item';
 
@@ -7307,7 +7307,7 @@
     link: Boolean,
     target: String,
     dropdown: Boolean
-  }, Mixins.colorProps, {}, Mixins.linkIconProps, {}, Mixins.linkRouterProps, {}, Mixins.linkActionsProps));
+  }, Mixins.colorProps, Mixins.linkIconProps, Mixins.linkRouterProps, Mixins.linkActionsProps));
 
   F7MenuItem.displayName = 'f7-menu-item';
 
@@ -13253,7 +13253,7 @@
       type: [Boolean, String],
       default: undefined
     }
-  }, Mixins.colorProps, {}, Mixins.linkActionsProps, {}, Mixins.linkRouterProps, {}, Mixins.linkIconProps));
+  }, Mixins.colorProps, Mixins.linkActionsProps, Mixins.linkRouterProps, Mixins.linkIconProps));
 
   F7TreeviewItem.displayName = 'f7-treeview-item';
 
@@ -13823,11 +13823,11 @@
    * Build full featured iOS & Android apps using Framework7 & React
    * http://framework7.io/react/
    *
-   * Copyright 2014-2019 Vladimir Kharlampidi
+   * Copyright 2014-2020 Vladimir Kharlampidi
    *
    * Released under the MIT License
    *
-   * Released on: July 27, 2019
+   * Released on: January 9, 2020
    */
 
   var Plugin = {

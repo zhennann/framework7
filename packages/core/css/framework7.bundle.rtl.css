@@ -3,11 +3,11 @@
  * Full featured mobile HTML framework for building iOS & Android apps
  * http://framework7.io/
  *
- * Copyright 2014-2019 Vladimir Kharlampidi
+ * Copyright 2014-2020 Vladimir Kharlampidi
  *
  * Released under the MIT License
  *
- * Released on: July 27, 2019
+ * Released on: January 9, 2020
  */
 
 /*====================
@@ -3831,7 +3831,6 @@ html.device-full-viewport body {
   overflow: hidden;
   text-overflow: hidden;
   -webkit-line-clamp: var(--f7-list-item-text-max-lines);
-  -webkit-box-orient: vertical;
   display: -webkit-box;
   font-size: var(--f7-list-item-text-font-size);
   font-weight: var(--f7-list-item-text-font-weight);
