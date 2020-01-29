@@ -47,6 +47,12 @@ export default {
         const pageEl = el.children[el.children.length - 1];
         pageData.el = pageEl;
 
+        // zhennann
+        if (!pageEl.classList.contains('page')) {
+          // eslint-disable-next-line
+          console.error(`The first element of ${componentRouterData.component.$f7route.path} should be f7-page or eb-page`);
+        }
+
         resolve(pageEl);
         resolved = true;
       }
