@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: January 29, 2020
+ * Released on: February 1, 2020
  */
 
 (function (global, factory) {
@@ -34578,9 +34578,7 @@
         var value = params[key];
         if (typeof value === 'string' && value.indexOf('{') === 0 && value.indexOf('}') > 0) {
           try {
-            // by zhennann
-            var value2 = value.replace(/'/g, '"');
-            params[key] = JSON.parse(value2);
+            params[key] = JSON.parse(value);
           } catch (e) {
             // not JSON
           }
