@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: February 1, 2020
+ * Released on: February 7, 2020
  */
 import Vue from 'vue';
 import f7AccordionContent from './components/accordion-content';

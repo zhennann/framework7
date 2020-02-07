@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: February 1, 2020
+ * Released on: February 7, 2020
  */
 
 (function (global, factory) {
@@ -8733,15 +8733,8 @@
         if (callback) { callback(); }
       }
 
-      var onDoneFlag = false;
-      function onDoneWrap() {
-        if (onDoneFlag) { return; }
-        onDoneFlag = true;
-        onDone();
-      }
-      win.setTimeout(onDoneWrap, 500);
       (direction === 'forward' ? newPage : oldPage).animationEnd(function () {
-        onDoneWrap();
+        onDone();
       });
 
       // Animate

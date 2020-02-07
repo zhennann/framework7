@@ -252,15 +252,8 @@ class Router extends Framework7Class {
       if (callback) callback();
     }
 
-    let onDoneFlag = false;
-    function onDoneWrap() {
-      if (onDoneFlag) return;
-      onDoneFlag = true;
-      onDone();
-    }
-    window.setTimeout(onDoneWrap, 500);
     (direction === 'forward' ? newPage : oldPage).animationEnd(() => {
-      onDoneWrap();
+      onDone();
     });
 
     // Animate
