@@ -9,20 +9,6 @@ class Calendar extends Framework7Class {
 
     calendar.params = Utils.extend({}, app.params.calendar, params);
 
-    if (calendar.params.calendarType === 'jalali') {
-      Object.keys(calendar.params.jalali).forEach((param) => {
-        if (!params[param]) {
-          calendar.params[param] = calendar.params.jalali[param];
-        }
-      });
-    }
-
-    if (calendar.params.calendarType === 'jalali') {
-      calendar.DateHandleClass = IDate;
-    } else {
-      calendar.DateHandleClass = Date;
-    }
-
     let $hostEl;
     if (calendar.params.hostEl) {
       $hostEl = $(calendar.params.hostEl);
