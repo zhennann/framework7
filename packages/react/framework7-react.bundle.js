@@ -7056,12 +7056,12 @@
 
     F7List.prototype.onTabShow = function onTabShow (el) {
       if (this.eventTargetEl !== el) { return; }
-      this.dispatchEvent('tab:show tabShow');
+      this.dispatchEvent('tab:show tabShow', el);
     };
 
     F7List.prototype.onTabHide = function onTabHide (el) {
       if (this.eventTargetEl !== el) { return; }
-      this.dispatchEvent('tab:hide tabHide');
+      this.dispatchEvent('tab:hide tabHide', el);
     };
 
     prototypeAccessors.classes.get = function () {
@@ -9930,12 +9930,12 @@
 
     F7PageContent.prototype.onTabShow = function onTabShow (el) {
       if (this.eventTargetEl !== el) { return; }
-      this.dispatchEvent('tab:show tabShow');
+      this.dispatchEvent('tab:show tabShow', el);
     };
 
     F7PageContent.prototype.onTabHide = function onTabHide (el) {
       if (this.eventTargetEl !== el) { return; }
-      this.dispatchEvent('tab:hide tabHide');
+      this.dispatchEvent('tab:hide tabHide', el);
     };
 
     prototypeAccessors.classes.get = function () {
@@ -14139,13 +14139,13 @@
 
     F7View.prototype.onTabShow = function onTabShow (el) {
       if (el === this.refs.el) {
-        this.dispatchEvent('tab:show tabShow');
+        this.dispatchEvent('tab:show tabShow', el);
       }
     };
 
     F7View.prototype.onTabHide = function onTabHide (el) {
       if (el === this.refs.el) {
-        this.dispatchEvent('tab:hide tabHide');
+        this.dispatchEvent('tab:hide tabHide', el);
       }
     };
 
