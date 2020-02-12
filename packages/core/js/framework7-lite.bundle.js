@@ -9134,7 +9134,13 @@
         console.warn('Framework7: wrong or not complete pushState configuration, trying to guess pushStateRoot');
         pushStateRoot = doc.location.pathname.split('index.html')[0];
       }
-      if (!pushState || !pushStateOnLoad) {
+
+      // by zhennann
+      if (app.params.router.initEmpty) {
+        initUrl = app.params.router.initEmpty;
+        router.history = [];
+        router.saveHistory();
+      } else if (!pushState || !pushStateOnLoad) {
         if (!initUrl) {
           initUrl = documentUrl;
         }
@@ -9171,6 +9177,7 @@
         }
         router.saveHistory();
       }
+
       var currentRoute;
       if (router.history.length > 1) {
         // Will load page
