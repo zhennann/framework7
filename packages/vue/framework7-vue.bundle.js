@@ -12128,12 +12128,12 @@
 
       onTabShow: function onTabShow(el) {
         if (this.eventTargetEl !== el) { return; }
-        this.dispatchEvent('tab:show tabShow');
+        this.dispatchEvent('tab:show tabShow', el);
       },
 
       onTabHide: function onTabHide(el) {
         if (this.eventTargetEl !== el) { return; }
-        this.dispatchEvent('tab:hide tabHide');
+        this.dispatchEvent('tab:hide tabHide', el);
       },
 
       dispatchEvent: function dispatchEvent(events) {

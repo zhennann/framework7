@@ -13405,12 +13405,12 @@
 
     F7Tab.prototype.onTabShow = function onTabShow (el) {
       if (this.eventTargetEl !== el) { return; }
-      this.dispatchEvent('tab:show tabShow');
+      this.dispatchEvent('tab:show tabShow', el);
     };
 
     F7Tab.prototype.onTabHide = function onTabHide (el) {
       if (this.eventTargetEl !== el) { return; }
-      this.dispatchEvent('tab:hide tabHide');
+      this.dispatchEvent('tab:hide tabHide', el);
     };
 
     F7Tab.prototype.render = function render () {
