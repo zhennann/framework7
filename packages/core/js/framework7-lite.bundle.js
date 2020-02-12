@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: February 9, 2020
+ * Released on: February 12, 2020
  */
 
 (function (global, factory) {
@@ -39907,7 +39907,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: February 9, 2020
+   * Released on: February 12, 2020
    */
 
   // Install Core Modules & Components
