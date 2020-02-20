@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: February 12, 2020
+ * Released on: February 20, 2020
  */
 
 (function (global, factory) {
@@ -9596,6 +9596,9 @@
           }
         });
       });
+
+      // by zhennann
+      if (isLink && $clickedLinkEl.is('.eb-external')) { return; }
 
       // Load Page
       var clickedLinkData = {};
@@ -39914,7 +39917,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: February 12, 2020
+   * Released on: February 20, 2020
    */
 
   // Install Core Modules & Components

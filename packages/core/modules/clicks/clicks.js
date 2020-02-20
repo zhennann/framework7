@@ -43,6 +43,9 @@ function initClicks(app) {
       });
     });
 
+    // by zhennann
+    if (isLink && $clickedLinkEl.is('.eb-external')) return;
+
     // Load Page
     let clickedLinkData = {};
     if (isLink) {
