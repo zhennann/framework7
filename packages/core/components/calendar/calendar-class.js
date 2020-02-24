@@ -477,7 +477,7 @@ class Calendar extends Framework7Class {
 
   isPopover() {
     const calendar = this;
-    const { app, modal, params, $inputEl } = calendar;
+    const { modal, params, $inputEl } = calendar;
     if (params.openIn === 'sheet') return false;
     if (modal && modal.type !== 'popover') return false;
 

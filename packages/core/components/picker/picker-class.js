@@ -133,7 +133,7 @@ class Picker extends Framework7Class {
 
   isPopover() {
     const picker = this;
-    const { app, modal, params, $inputEl } = picker;
+    const { modal, params, $inputEl } = picker;
     if (params.openIn === 'sheet') return false;
     if (modal && modal.type !== 'popover') return false;
 

@@ -23470,7 +23470,6 @@
 
     Calendar.prototype.isPopover = function isPopover () {
       var calendar = this;
-      var app = calendar.app;
       var modal = calendar.modal;
       var params = calendar.params;
       var $inputEl = calendar.$inputEl;
@@ -25347,7 +25346,6 @@
 
     Picker.prototype.isPopover = function isPopover () {
       var picker = this;
-      var app = picker.app;
       var modal = picker.modal;
       var params = picker.params;
       var $inputEl = picker.$inputEl;
