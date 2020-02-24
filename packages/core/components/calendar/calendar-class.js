@@ -477,21 +477,25 @@ class Calendar extends Framework7Class {
 
   isPopover() {
     const calendar = this;
-    const { app, modal, params } = calendar;
+    const { app, modal, params, $inputEl } = calendar;
     if (params.openIn === 'sheet') return false;
     if (modal && modal.type !== 'popover') return false;
 
     if (!calendar.inline && calendar.inputEl) {
       if (params.openIn === 'popover') return true;
-      if (app.device.ios) {
-        return !!app.device.ipad;
-      }
-      if (app.width >= 768) {
-        return true;
-      }
-      if (app.device.desktop && app.theme === 'aurora') {
-        return true;
-      }
+      // by zhennann
+      const $view = $inputEl.parents('.view');
+      const viewSize = $view.data('size');
+      return viewSize !== 'small';
+      // if (app.device.ios) {
+      //   return !!app.device.ipad;
+      // }
+      // if (app.width >= 768) {
+      //   return true;
+      // }
+      // if (app.device.desktop && app.theme === 'aurora') {
+      //   return true;
+      // }
     }
     return false;
   }

@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: February 22, 2020
+ * Released on: February 24, 2020
  */
 
 (function (global, factory) {
@@ -21640,20 +21640,25 @@
       var app = calendar.app;
       var modal = calendar.modal;
       var params = calendar.params;
+      var $inputEl = calendar.$inputEl;
       if (params.openIn === 'sheet') { return false; }
       if (modal && modal.type !== 'popover') { return false; }
 
       if (!calendar.inline && calendar.inputEl) {
         if (params.openIn === 'popover') { return true; }
-        if (app.device.ios) {
-          return !!app.device.ipad;
-        }
-        if (app.width >= 768) {
-          return true;
-        }
-        if (app.device.desktop && app.theme === 'aurora') {
-          return true;
-        }
+        // by zhennann
+        var $view = $inputEl.parents('.view');
+        var viewSize = $view.data('size');
+        return viewSize !== 'small';
+        // if (app.device.ios) {
+        //   return !!app.device.ipad;
+        // }
+        // if (app.width >= 768) {
+        //   return true;
+        // }
+        // if (app.device.desktop && app.theme === 'aurora') {
+        //   return true;
+        // }
       }
       return false;
     };
@@ -23512,20 +23517,25 @@
       var app = picker.app;
       var modal = picker.modal;
       var params = picker.params;
+      var $inputEl = picker.$inputEl;
       if (params.openIn === 'sheet') { return false; }
       if (modal && modal.type !== 'popover') { return false; }
 
       if (!picker.inline && picker.inputEl) {
         if (params.openIn === 'popover') { return true; }
-        if (app.device.ios) {
-          return !!app.device.ipad;
-        }
-        if (app.width >= 768) {
-          return true;
-        }
-        if (app.device.desktop && app.theme === 'aurora') {
-          return true;
-        }
+        // by zhennann
+        var $view = $inputEl.parents('.view');
+        var viewSize = $view.data('size');
+        return viewSize !== 'small';
+        // if (app.device.ios) {
+        //   return !!app.device.ipad;
+        // }
+        // if (app.width >= 768) {
+        //   return true;
+        // }
+        // if (app.device.desktop && app.theme === 'aurora') {
+        //   return true;
+        // }
       }
       return false;
     };
@@ -39929,7 +39939,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: February 22, 2020
+   * Released on: February 24, 2020
    */
 
   // Install Core Modules & Components

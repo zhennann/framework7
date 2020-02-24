@@ -133,21 +133,25 @@ class Picker extends Framework7Class {
 
   isPopover() {
     const picker = this;
-    const { app, modal, params } = picker;
+    const { app, modal, params, $inputEl } = picker;
     if (params.openIn === 'sheet') return false;
     if (modal && modal.type !== 'popover') return false;
 
     if (!picker.inline && picker.inputEl) {
       if (params.openIn === 'popover') return true;
-      if (app.device.ios) {
-        return !!app.device.ipad;
-      }
-      if (app.width >= 768) {
-        return true;
-      }
-      if (app.device.desktop && app.theme === 'aurora') {
-        return true;
-      }
+      // by zhennann
+      const $view = $inputEl.parents('.view');
+      const viewSize = $view.data('size');
+      return viewSize !== 'small';
+      // if (app.device.ios) {
+      //   return !!app.device.ipad;
+      // }
+      // if (app.width >= 768) {
+      //   return true;
+      // }
+      // if (app.device.desktop && app.theme === 'aurora') {
+      //   return true;
+      // }
     }
     return false;
   }
