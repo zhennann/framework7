@@ -13165,6 +13165,13 @@
     Modal.prototype.destroy = function destroy () {
       var modal = this;
       if (modal.destroyed) { return; }
+
+      // by zhennann
+      if (modal.$el && modal.$el.hasClass('modal-out')) {
+        // force closed
+        modal.onClosed();
+      }
+
       modal.emit(("local::beforeDestroy modalBeforeDestroy " + (modal.type) + "BeforeDestroy"), modal);
       if (modal.$el) {
         modal.$el.trigger(("modal:beforedestroy " + (modal.type.toLowerCase()) + ":beforedestroy"));
