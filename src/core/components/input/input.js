@@ -63,9 +63,10 @@ const Input = {
     const $itemInputEl = $inputEl.parents('.item-input');
     const $inputWrapEl = $inputEl.parents('.input');
     const validity = $inputEl[0].validity;
-    const validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || '';
+    // const validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || '';
+    const validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || $inputEl[0].ebCustomError || '';
     if (!validity) return;
-    if (!validity.valid) {
+    if (!validity.valid || $inputEl[0].ebCustomError) {
       let $errorEl = $inputEl.nextAll('.item-input-error-message, .input-error-message');
       if (validationMessage) {
         if ($errorEl.length === 0) {

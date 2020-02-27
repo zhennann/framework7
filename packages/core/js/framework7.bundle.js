@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: February 24, 2020
+ * Released on: February 27, 2020
  */
 
 (function (global, factory) {
@@ -20196,9 +20196,10 @@
       var $itemInputEl = $inputEl.parents('.item-input');
       var $inputWrapEl = $inputEl.parents('.input');
       var validity = $inputEl[0].validity;
-      var validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || '';
+      // const validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || '';
+      var validationMessage = $inputEl.dataset().errorMessage || $inputEl[0].validationMessage || $inputEl[0].ebCustomError || '';
       if (!validity) { return; }
-      if (!validity.valid) {
+      if (!validity.valid || $inputEl[0].ebCustomError) {
         var $errorEl = $inputEl.nextAll('.item-input-error-message, .input-error-message');
         if (validationMessage) {
           if ($errorEl.length === 0) {
