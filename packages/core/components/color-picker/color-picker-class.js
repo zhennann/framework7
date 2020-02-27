@@ -188,19 +188,25 @@ class ColorPicker extends Framework7Class {
 
   getModalType() {
     const self = this;
-    const { app, modal, params } = self;
+    const { modal, params, $inputEl } = self;
     const { openIn, openInPhone } = params;
     if (modal && modal.type) return modal.type;
     if (openIn !== 'auto') return openIn;
     if (self.inline) return null;
-    if (app.device.ios) {
-      return app.device.ipad ? 'popover' : openInPhone;
-    }
-    if (app.width >= 768 || (app.device.desktop && app.theme === 'aurora')) {
-      return 'popover';
-    }
 
-    return openInPhone;
+    // by zhennann
+    const $view = $inputEl.parents('.view');
+    const viewSize = $view.data('size');
+    return viewSize !== 'small' ? 'popover' : openInPhone;
+
+    // if (app.device.ios) {
+    //   return app.device.ipad ? 'popover' : openInPhone;
+    // }
+    // if (app.width >= 768 || (app.device.desktop && app.theme === 'aurora')) {
+    //   return 'popover';
+    // }
+
+    // return openInPhone;
   }
 
   formatValue() {

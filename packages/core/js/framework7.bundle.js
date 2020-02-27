@@ -40107,22 +40107,28 @@
 
     ColorPicker.prototype.getModalType = function getModalType () {
       var self = this;
-      var app = self.app;
       var modal = self.modal;
       var params = self.params;
+      var $inputEl = self.$inputEl;
       var openIn = params.openIn;
       var openInPhone = params.openInPhone;
       if (modal && modal.type) { return modal.type; }
       if (openIn !== 'auto') { return openIn; }
       if (self.inline) { return null; }
-      if (app.device.ios) {
-        return app.device.ipad ? 'popover' : openInPhone;
-      }
-      if (app.width >= 768 || (app.device.desktop && app.theme === 'aurora')) {
-        return 'popover';
-      }
 
-      return openInPhone;
+      // by zhennann
+      var $view = $inputEl.parents('.view');
+      var viewSize = $view.data('size');
+      return viewSize !== 'small' ? 'popover' : openInPhone;
+
+      // if (app.device.ios) {
+      //   return app.device.ipad ? 'popover' : openInPhone;
+      // }
+      // if (app.width >= 768 || (app.device.desktop && app.theme === 'aurora')) {
+      //   return 'popover';
+      // }
+
+      // return openInPhone;
     };
 
     ColorPicker.prototype.formatValue = function formatValue () {
