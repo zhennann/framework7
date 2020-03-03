@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: February 29, 2020
+ * Released on: March 3, 2020
  */
 
 /*====================
@@ -12818,6 +12818,38 @@ label.item-radio.disabled,
   flex-wrap: wrap;
   align-items: flex-start;
   --f7-cols-per-row: 1;
+  /*
+  @media (min-width: @breakpoints[medium]) {
+    each(@cols, {
+      @className: framework7_floor(@value);
+      @n: framework7_calculateN(@value);
+      .medium-@{className} {
+        --f7-cols-per-row: @n;
+      }
+    });
+    each(@cols, {
+      .medium-auto:nth-last-of-type(@{index}),
+      .medium-auto:nth-last-of-type(@{index}) ~ .medium-auto {
+        --f7-cols-per-row: @index;
+      }
+    });
+  }
+  @media (min-width: @breakpoints[large]) {
+    each(@cols, {
+      @className: framework7_floor(@value);
+      @n: framework7_calculateN(@value);
+      .large-@{className} {
+        --f7-cols-per-row: @n;
+      }
+    });
+    each(@cols, {
+      .large-auto:nth-last-of-type(@{index}),
+      .large-auto:nth-last-of-type(@{index}) ~ .large-auto {
+        --f7-cols-per-row: @index;
+      }
+    });
+  }
+  */
 }
 .row + .row {
   margin-top: var(--f7-grid-row-gap);

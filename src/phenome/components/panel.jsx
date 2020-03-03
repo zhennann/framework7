@@ -209,8 +209,8 @@ export default {
     onCollapsedBreakpoint(event) {
       this.dispatchEvent('panel:collapsedbreakpoint panelCollapsedBreakpoint', event);
     },
-    onResize(event) {
-      this.dispatchEvent('panel:resize panelResize', event);
+    onResize(event, newPanelWidth) {
+      this.dispatchEvent('panel:resize panelResize', event, newPanelWidth);
     },
     open(animate) {
       const self = this;

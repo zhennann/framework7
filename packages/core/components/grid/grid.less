@@ -72,6 +72,38 @@
       }
     });
   }
+  /*
+  @media (min-width: @breakpoints[medium]) {
+    each(@cols, {
+      @className: framework7_floor(@value);
+      @n: framework7_calculateN(@value);
+      .medium-@{className} {
+        --f7-cols-per-row: @n;
+      }
+    });
+    each(@cols, {
+      .medium-auto:nth-last-of-type(@{index}),
+      .medium-auto:nth-last-of-type(@{index}) ~ .medium-auto {
+        --f7-cols-per-row: @index;
+      }
+    });
+  }
+  @media (min-width: @breakpoints[large]) {
+    each(@cols, {
+      @className: framework7_floor(@value);
+      @n: framework7_calculateN(@value);
+      .large-@{className} {
+        --f7-cols-per-row: @n;
+      }
+    });
+    each(@cols, {
+      .large-auto:nth-last-of-type(@{index}),
+      .large-auto:nth-last-of-type(@{index}) ~ .large-auto {
+        --f7-cols-per-row: @index;
+      }
+    });
+  }
+  */
   @media (min-width: @breakpoints[xlarge]) {
     each(@cols, {
       @className: framework7_floor(@value);
