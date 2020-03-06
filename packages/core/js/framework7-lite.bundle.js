@@ -39034,7 +39034,9 @@
       app.emit('treeviewOpen', $itemEl[0]);
       function done(cancel) {
         if (cancel) {
-          this.close($itemEl[0]);
+          $itemEl.removeClass('treeview-item-opened');
+          $itemEl.trigger('treeview:close');
+          app.emit('treeviewClose', $itemEl[0]);
         } else {
           $itemEl[0].f7TreeviewChildrenLoaded = true;
         }
