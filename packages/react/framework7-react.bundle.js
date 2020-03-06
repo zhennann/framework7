@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 3, 2020
+ * Released on: March 6, 2020
  */
 
 (function (global, factory) {
@@ -10677,8 +10677,8 @@
       this.dispatchEvent('panel:collapsedbreakpoint panelCollapsedBreakpoint', event);
     };
 
-    F7Panel.prototype.onResize = function onResize (event, newPanelWidth) {
-      this.dispatchEvent('panel:resize panelResize', event, newPanelWidth);
+    F7Panel.prototype.onResize = function onResize (panel, newPanelWidth) {
+      this.dispatchEvent('panel:resize panelResize', panel, newPanelWidth);
     };
 
     F7Panel.prototype.open = function open (animate) {
@@ -14619,7 +14619,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: March 3, 2020
+   * Released on: March 6, 2020
    */
 
   function f7ready(callback) {

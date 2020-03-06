@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 3, 2020
+ * Released on: March 6, 2020
  */
 
 (function (global, factory) {
@@ -39029,33 +39029,25 @@
       var app = this;
       var $itemEl = $(itemEl).eq(0);
       if (!$itemEl.length) { return; }
-
-      var needLoadChildren = $itemEl.hasClass('treeview-load-children') && !$itemEl[0].f7TreeviewChildrenLoaded;
-
-      if (!needLoadChildren) {
-        $itemEl.addClass('treeview-item-opened');
-        $itemEl.trigger('treeview:open');
-        app.emit('treeviewOpen', $itemEl[0]);
-        return;
-      }
-
-      function done(err) {
+      $itemEl.addClass('treeview-item-opened');
+      $itemEl.trigger('treeview:open');
+      app.emit('treeviewOpen', $itemEl[0]);
+      function done(cancel) {
+        if (cancel) {
+          this.close($itemEl[0]);
+        } else {
+          $itemEl[0].f7TreeviewChildrenLoaded = true;
+        }
         $itemEl.find('.treeview-toggle').removeClass('treeview-toggle-hidden');
         $itemEl.find('.treeview-preloader').remove();
-
-        if (!err) {
-          $itemEl[0].f7TreeviewChildrenLoaded = true;
-
-          $itemEl.addClass('treeview-item-opened');
-          $itemEl.trigger('treeview:open');
-          app.emit('treeviewOpen', $itemEl[0]);
-        }
       }
 
-      $itemEl.trigger('treeview:loadchildren', done);
-      app.emit('treeviewLoadChildren', $itemEl[0], done);
-      $itemEl.find('.treeview-toggle').addClass('treeview-toggle-hidden');
-      $itemEl.find('.treeview-item-root').prepend(("<div class=\"preloader treeview-preloader\">" + (Utils[((app.theme) + "PreloaderContent")]) + "</div>"));
+      if ($itemEl.hasClass('treeview-load-children') && !$itemEl[0].f7TreeviewChildrenLoaded) {
+        $itemEl.trigger('treeview:loadchildren', done);
+        app.emit('treeviewLoadChildren', $itemEl[0], done);
+        $itemEl.find('.treeview-toggle').addClass('treeview-toggle-hidden');
+        $itemEl.find('.treeview-item-root').prepend(("<div class=\"preloader treeview-preloader\">" + (Utils[((app.theme) + "PreloaderContent")]) + "</div>"));
+      }
     },
     close: function close(itemEl) {
       var app = this;
@@ -39951,7 +39943,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: March 3, 2020
+   * Released on: March 6, 2020
    */
 
   // Install Core Modules & Components
