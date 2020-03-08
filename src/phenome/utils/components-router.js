@@ -63,6 +63,13 @@ export default {
 
       viewRouter.pages.push(pageData);
       viewRouter.setPages(viewRouter.pages);
+
+      // by zhennann
+      // Update router history: hack: navigate.js #305
+      if (options.reloadAll) {
+        router.history = [];
+        router.saveHistory();
+      }
     },
     removePage($pageEl) {
       if (!$pageEl) return;

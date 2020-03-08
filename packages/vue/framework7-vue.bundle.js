@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 6, 2020
+ * Released on: March 8, 2020
  */
 
 (function (global, factory) {
@@ -12998,6 +12998,13 @@
 
         viewRouter.pages.push(pageData);
         viewRouter.setPages(viewRouter.pages);
+
+        // by zhennann
+        // Update router history: hack: navigate.js #305
+        if (options.reloadAll) {
+          router.history = [];
+          router.saveHistory();
+        }
       },
       removePage: function removePage($pageEl) {
         if (!$pageEl) { return; }
@@ -13175,7 +13182,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: March 6, 2020
+   * Released on: March 8, 2020
    */
 
   function f7ready(callback) {
