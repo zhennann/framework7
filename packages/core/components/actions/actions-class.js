@@ -94,12 +94,21 @@ class Actions extends Modal {
       const { targetEl, targetX, targetY, targetWidth, targetHeight } = actions.params;
       if (actions.params.convertToPopover && (targetEl || (targetX !== undefined && targetY !== undefined))) {
         // Popover
+        /*
         if (
           actions.params.forceToPopover
           || (app.device.ios && app.device.ipad)
           || app.width >= 768
           || (app.device.desktop && app.theme === 'aurora')
         ) {
+          convertToPopover = true;
+        }
+        */
+        // by zhennann
+        const $view = $(targetEl).parents('.view');
+        const viewSize = $view.data('size');
+        const isPopover = viewSize !== 'small';
+        if (actions.params.forceToPopover || isPopover) {
           convertToPopover = true;
         }
       }

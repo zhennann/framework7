@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 8, 2020
+ * Released on: March 18, 2020
  */
 
 (function (global, factory) {
@@ -14683,12 +14683,21 @@
         var targetHeight = ref.targetHeight;
         if (actions.params.convertToPopover && (targetEl || (targetX !== undefined && targetY !== undefined))) {
           // Popover
+          /*
           if (
             actions.params.forceToPopover
             || (app.device.ios && app.device.ipad)
             || app.width >= 768
             || (app.device.desktop && app.theme === 'aurora')
           ) {
+            convertToPopover = true;
+          }
+          */
+          // by zhennann
+          var $view = $(targetEl).parents('.view');
+          var viewSize = $view.data('size');
+          var isPopover = viewSize !== 'small';
+          if (actions.params.forceToPopover || isPopover) {
             convertToPopover = true;
           }
         }
