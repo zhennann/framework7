@@ -12881,11 +12881,15 @@
           });
           popover.open(animate);
           popover.once('popoverOpened', function () {
+            // zhennann
+            actions.emit('popoverOpened', popover);
             popover.$el.find('.list-button, .item-link').each(function (groupIndex, buttonEl) {
               $(buttonEl).on('click', buttonOnClick);
             });
           });
           popover.once('popoverClosed', function () {
+            // zhennann
+            actions.emit('popoverClosed', popover);
             popover.$el.find('.list-button, .item-link').each(function (groupIndex, buttonEl) {
               $(buttonEl).off('click', buttonOnClick);
             });
