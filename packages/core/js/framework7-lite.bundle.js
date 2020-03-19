@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 18, 2020
+ * Released on: March 19, 2020
  */
 
 (function (global, factory) {
@@ -10033,6 +10033,7 @@
         });
       },
       modalOpen: function modalOpen(modal) {
+        if (!modal || !modal.$el) { return; }
         var app = this;
         modal.$el.find('.view-init').each(function (index, viewEl) {
           if (viewEl.f7View) { return; }
@@ -10679,6 +10680,7 @@
         }
       },
       'panelOpen panelSwipeOpen modalOpen': function onPanelModalOpen(instance) {
+        if (!instance || !instance.$el) { return; }
         var app = this;
         instance.$el.find('.navbar:not(.navbar-previous):not(.stacked)').each(function (index, navbarEl) {
           app.navbar.size(navbarEl);
@@ -12878,18 +12880,40 @@
             targetY: targetY,
             targetWidth: targetWidth,
             targetHeight: targetHeight,
+            on: {
+              open: function open() {
+                if (actions.$el) {
+                  actions.$el.trigger(("modal:open " + (actions.type.toLowerCase()) + ":open"));
+                }
+                actions.emit(("local::open modalOpen " + (actions.type) + "Open"), actions);
+              },
+              opened: function opened() {
+                if (actions.$el) {
+                 actions.$el.trigger(("modal:opened " + (actions.type.toLowerCase()) + ":opened"));
+                }
+                actions.emit(("local::opened modalOpened " + (actions.type) + "Opened"), actions);
+              },
+              close: function close() {
+                if (actions.$el) {
+                 actions.$el.trigger(("modal:close " + (actions.type.toLowerCase()) + ":close"));
+                }
+                actions.emit(("local::close modalClose " + (actions.type) + "Close"), actions);
+              },
+              closed: function closed() {
+                if (actions.$el) {
+                 actions.$el.trigger(("modal:closed " + (actions.type.toLowerCase()) + ":closed"));
+                }
+                actions.emit(("local::closed modalClosed " + (actions.type) + "Closed"), actions);
+              },
+            },
           });
           popover.open(animate);
           popover.once('popoverOpened', function () {
-            // zhennann
-            actions.emit('popoverOpened', popover);
             popover.$el.find('.list-button, .item-link').each(function (groupIndex, buttonEl) {
               $(buttonEl).on('click', buttonOnClick);
             });
           });
           popover.once('popoverClosed', function () {
-            // zhennann
-            actions.emit('popoverClosed', popover);
             popover.$el.find('.list-button, .item-link').each(function (groupIndex, buttonEl) {
               $(buttonEl).off('click', buttonOnClick);
             });
@@ -12998,7 +13022,8 @@
       var actions = this;
       if (actions.params.render) { return actions.params.render.call(actions, actions); }
       var groups = actions.groups;
-      return ("\n      <div class=\"actions-modal" + (actions.params.grid ? ' actions-grid' : '') + "\">\n        " + (groups.map(function (group) { return ("<div class=\"actions-group\">\n            " + (group.map(function (button) {
+      var cssClass = actions.params.cssClass;
+      return ("\n      <div class=\"actions-modal" + (actions.params.grid ? ' actions-grid' : '') + " " + (cssClass || '') + "\">\n        " + (groups.map(function (group) { return ("<div class=\"actions-group\">\n            " + (group.map(function (button) {
                 var buttonClasses = [("actions-" + (button.label ? 'label' : 'button'))];
                 var color = button.color;
                 var bg = button.bg;
@@ -13022,7 +13047,8 @@
       var actions = this;
       if (actions.params.renderPopover) { return actions.params.renderPopover.call(actions, actions); }
       var groups = actions.groups;
-      return ("\n      <div class=\"popover popover-from-actions\">\n        <div class=\"popover-inner\">\n          " + (groups.map(function (group) { return ("\n            <div class=\"list\">\n              <ul>\n                " + (group.map(function (button) {
+      var cssClass = actions.params.cssClass;
+      return ("\n      <div class=\"popover popover-from-actions " + (cssClass || '') + "\">\n        <div class=\"popover-inner\">\n          " + (groups.map(function (group) { return ("\n            <div class=\"list\">\n              <ul>\n                " + (group.map(function (button) {
                     var itemClasses = [];
                     var color = button.color;
                     var bg = button.bg;
@@ -13059,6 +13085,7 @@
         forceToPopover: false,
         backdrop: true,
         backdropEl: undefined,
+        cssClass: null,
         closeByBackdropClick: true,
         closeOnEscape: false,
         render: null,
@@ -39958,7 +39985,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: March 18, 2020
+   * Released on: March 19, 2020
    */
 
   // Install Core Modules & Components

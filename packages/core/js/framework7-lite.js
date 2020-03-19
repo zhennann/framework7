@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 18, 2020
+ * Released on: March 19, 2020
  */
 
 (function (global, factory) {
@@ -10032,6 +10032,7 @@
         });
       },
       modalOpen: function modalOpen(modal) {
+        if (!modal || !modal.$el) { return; }
         var app = this;
         modal.$el.find('.view-init').each(function (index, viewEl) {
           if (viewEl.f7View) { return; }
@@ -10678,6 +10679,7 @@
         }
       },
       'panelOpen panelSwipeOpen modalOpen': function onPanelModalOpen(instance) {
+        if (!instance || !instance.$el) { return; }
         var app = this;
         instance.$el.find('.navbar:not(.navbar-previous):not(.stacked)').each(function (index, navbarEl) {
           app.navbar.size(navbarEl);
@@ -11461,7 +11463,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: March 18, 2020
+   * Released on: March 19, 2020
    */
 
   // Install Core Modules & Components
