@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: April 12, 2020
+ * Released on: August 28, 2020
  */
 
 (function (global, factory) {
@@ -5167,6 +5167,8 @@
       if (!state) { state = {}; }
 
       app.views.forEach(function (view) {
+        // by zhennann
+        if (!view.router || !view.params) { return; }
         var router = view.router;
         var viewState = state[view.id];
         if (!viewState && view.params.pushState) {
