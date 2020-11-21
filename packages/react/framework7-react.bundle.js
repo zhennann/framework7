@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: August 28, 2020
+ * Released on: November 21, 2020
  */
 
 (function (global, factory) {
@@ -14735,7 +14735,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: August 28, 2020
+   * Released on: November 21, 2020
    */
 
   function f7ready(callback) {

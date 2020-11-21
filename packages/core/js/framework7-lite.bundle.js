@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: August 28, 2020
+ * Released on: November 21, 2020
  */
 
 (function (global, factory) {
@@ -11349,7 +11349,8 @@
 
       // Backdrop
       if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
-        var className = $backdropEl.prop('className');
+        var className = $backdropEl.prop('className') || '';
+        className = className.split(' ').filter(function (item) { return item.indexOf('-backdrop') > -1; })[0];
         var backdropEl = $hostEl.children(("." + className));
         if (backdropEl.length === 0) {
           backdropEl = $(("<div class=\"" + className + "\"></div>"));
@@ -40263,7 +40264,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: August 28, 2020
+   * Released on: November 21, 2020
    */
 
   // Install Core Modules & Components

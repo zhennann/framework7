@@ -124,7 +124,8 @@ class Modal extends Framework7Class {
 
     // Backdrop
     if ($backdropEl && $hostEl && !$hostEl.is(app.root)) {
-      const className = $backdropEl.prop('className');
+      let className = $backdropEl.prop('className') || '';
+      className = className.split(' ').filter(item => item.indexOf('-backdrop') > -1)[0];
       let backdropEl = $hostEl.children(`.${className}`);
       if (backdropEl.length === 0) {
         backdropEl = $(`<div class="${className}"></div>`);
