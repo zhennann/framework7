@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: December 15, 2020
+ * Released on: December 16, 2020
  */
 
 (function (global, factory) {
