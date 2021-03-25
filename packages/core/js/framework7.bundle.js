@@ -3,11 +3,11 @@
  * Full featured mobile HTML framework for building iOS & Android apps
  * https://framework7.io/
  *
- * Copyright 2014-2020 Vladimir Kharlampidi
+ * Copyright 2014-2021 Vladimir Kharlampidi
  *
  * Released under the MIT License
  *
- * Released on: December 16, 2020
+ * Released on: March 25, 2021
  */
 
 (function (global, factory) {
@@ -16026,7 +16026,12 @@
         $('.toast.modal-in').each(function (index, openedEl) {
           var toastInstance = app.toast.get(openedEl);
           if (openedEl !== toast.el && toastInstance) {
-            toastInstance.close();
+            // by zhennann
+            var $host1 = Utils.getViewHost(app, $(openedEl));
+            var $host2 = Utils.getViewHost(app, $(toast.el));
+            if ($host1[0] === $host2[0]) {
+              toastInstance.close();
+            }
           }
         });
         if (closeTimeout) {

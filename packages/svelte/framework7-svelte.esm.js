@@ -3,11 +3,11 @@
  * Build full featured iOS & Android apps using Framework7 & Svelte
  * https://framework7.io/svelte/
  *
- * Copyright 2014-2020 Vladimir Kharlampidi
+ * Copyright 2014-2021 Vladimir Kharlampidi
  *
  * Released under the MIT License
  *
- * Released on: December 16, 2020
+ * Released on: March 25, 2021
  */
 
 import AccordionContent from './components/accordion-content.svelte';
