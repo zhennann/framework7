@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 25, 2021
+ * Released on: April 15, 2021
  */
 
 (function (global, factory) {
@@ -20783,6 +20783,10 @@
     SmartSelect.prototype.setValue = function setValue (value) {
       var ss = this;
       var newValue = value;
+      // by zhennann
+      if (newValue === null) {
+        newValue = '';
+      }
       var optionText = [];
       var optionEl;
       var displayAs;
@@ -40988,7 +40992,7 @@
    *
    * Released under the MIT License
    *
-   * Released on: March 25, 2021
+   * Released on: April 15, 2021
    */
 
   // Install Core Modules & Components

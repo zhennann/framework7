@@ -155,6 +155,10 @@ class SmartSelect extends Framework7Class {
   setValue(value) {
     const ss = this;
     let newValue = value;
+    // by zhennann
+    if (newValue === null) {
+      newValue = '';
+    }
     let optionText = [];
     let optionEl;
     let displayAs;
